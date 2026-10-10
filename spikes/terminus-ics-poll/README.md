@@ -6,7 +6,7 @@ Test that Terminus can fetch an ICS URL using an imported Core-compatible extens
 
 ## Important: configure a reachable ICS URL first
 
-The included `sample.ics` is a fixture; the `settings.yml` polling URL is a **placeholder** and must be replaced before importing. Upload the fixture to a public HTTPS endpoint you control, or use a public, non-sensitive ICS URL. Do not commit a private Google Calendar subscription URL.
+The included `sample.ics` is a fixture. The `settings.yml` polling URL points to the fixture on the **main branch**, which becomes available **only after this PR is merged**. Before merging, change the URL to a public HTTPS ICS URL you control, or one you can access. Never commit a private calendar subscription URL.
 
 The server must return `Content-Type: text/calendar`, or supply the `Accept: text/calendar` request header. Verify the server actually responds with ICS. Terminus's fetch client selects MIME types using the request's Accept header when provided.
 
