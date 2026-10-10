@@ -1,0 +1,7 @@
+---
+watch:
+  - .trmnlp.yml
+  - src
+
+custom_fields: {}
+framework_version: latest
