@@ -1,0 +1,18 @@
+services:
+  calendar:
+    build: ./calendar_service
+    environment:
+      CALENDAR_ADMIN_PASSWORD: ${CALENDAR_ADMIN_PASSWORD:?Set CALENDAR_ADMIN_PASSWORD in a private .env file}
+      CALENDAR_DB_PATH: /data/calendars.sqlite
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - calendar_data:/data
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+volumes:
+  calendar_data:
