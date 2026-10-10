@@ -1,0 +1,10 @@
+services:
+  trmnlp:
+    image: trmnl/trmnlp
+    pull_policy: always
+    command: ["serve", "--bind", "0.0.0.0"]
+    ports:
+      - "127.0.0.1:4567:4567"
+    volumes:
+      - .:/plugin
+    working_dir: /plugin
