@@ -1,24 +1,50 @@
-<div class="layout">
-  <div class="grid grid--cols-1 gap--large">
-    <div class="item">
-      <div class="meta">
-        <span class="label">PAPER CALENDAR</span>
-      </div>
-      <div class="content">
-        <span class="title title--large">Hello World!</span>
-        <span class="description">Your self-hosted TRMNL paper calendar starts here.</span>
+{% assign events_today = today | default: trmnl.plugin_settings.custom_fields.today %}
+{% assign events_week = week | default: trmnl.plugin_settings.custom_fields.week %}
+<div class="layout layout--col">
+  <div class="grid grid--cols-3 gap--medium">
+    <div class="col col--span-2">
+      <div class="item">
+        <div class="meta"><span class="label">TODAY</span></div>
+        <div class="content">
+          {% if events_today and events_today.size > 0 %}
+            {% for event in events_today limit: 6 %}
+              <div class="item">
+                <div class="meta">
+                  <span class="label">{% if event.all_day %}ALL DAY{% else %}{{ event.time | default: "Event" | escape }}{% endif %}</span>
+                </div>
+                <div class="content">
+                  <span class="title title--small" data-clamp="1">{{ event.title | escape }}</span>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <span class="description">No events for today</span>
+          {% endif %}
+        </div>
       </div>
     </div>
-    <div class="item">
-      <div class="content">
-        <span class="title title--small">Today</span>
-        <span class="description">Calendar integration coming next.</span>
+    <div class="col">
+      <div class="item">
+        <div class="meta"><span class="label">THIS WEEK</span></div>
+        <div class="content">
+          {% if events_week and events_week.size > 0 %}
+            {% for event in events_week limit: 7 %}
+              <div class="item">
+                <div class="meta"><span class="label">{{ event.day | escape }}</span></div>
+                <div class="content">
+                  <span class="title title--small" data-clamp="1">{{ event.title | escape }}</span>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <span class="description">Nothing else scheduled</span>
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>
 </div>
-
 <div class="title_bar">
-  <span class="title">Paper Calendar</span>
-  <span class="instance">Local development</span>
+  <span class="title">{{ trmnl.plugin_settings.custom_fields.title | default: "Paper Calendar" | escape }}</span>
+  <span class="instance">Today &amp; this week</span>
 </div>
