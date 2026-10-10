@@ -1,6 +1,17 @@
 ---
-strategy: static
 name: Paper Calendar
+strategy: static
+refresh_interval: 720
 no_screen_padding: 'no'
 dark_mode: 'no'
-refresh_interval: 60
+static_data: '{"today":[{"title":"Welcome to Paper Calendar","time":"All day","all_day":true},{"title":"Connect your calendar feed","time":"09:00","all_day":false}],"week":[{"day":"Monday","title":"Your next event"},{"day":"Tuesday","title":"Family plans"},{"day":"Friday","title":"Weekend ahead"}],"updated":"Demo data"}'
+custom_fields:
+  - keyname: week_start
+    name: Week starts on
+    field_type: select
+    options:
+      - Monday
+      - Sunday
+  - keyname: title
+    name: Screen title
+    field_type: string
