@@ -1,0 +1,6 @@
+---
+strategy: static
+name: Paper Calendar
+no_screen_padding: 'no'
+dark_mode: 'no'
+refresh_interval: 60
