@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Paper Calendar · Setup</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:#f5f5f3;color:#202320}
+    main{max-width:760px;margin:50px auto;padding:0 20px}header{margin-bottom:36px}
+    h1{font-size:32px;letter-spacing:-1px;margin:0 0 8px}p{color:#60645f;line-height:1.5}
+    section{background:white;padding:26px;border:1px solid #e2e5df;border-radius:16px;margin:18px 0}
+    h2{margin:0 0 16px;font-size:20px}label{display:block;font-weight:600;margin:14px 0 6px}
+    input{width:100%;padding:12px 14px;border:1px solid #c8cdc5;border-radius:8px;font:inherit}
+    button{border:0;border-radius:8px;padding:11px 16px;background:#1d251f;color:white;cursor:pointer;font:inherit}
+    button.secondary{background:#e9ebe8;color:#202320}button.danger{background:#f5e4e4;color:#802727}
+    button:disabled{opacity:.5;cursor:wait}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-top:1px solid #eee}
+    .name{font-weight:600}.muted{font-size:13px;color:#727770}.row .actions{margin:0}
+    #message{min-height:1.5em}code{background:#f2f2ef;padding:2px 4px;border-radius:4px}
+  </style>
+</head>
+<body>
+<main>
+  <header><h1>Paper Calendar</h1><p>Private, self-hosted calendars for your e-ink display.</p></header>
+  <section><h2>Your calendars</h2><div id="calendars"><p>No calendars connected yet.</p></div></section>
+  <section>
+    <h2>Add a calendar</h2>
+    <p>Paste a private HTTPS iCal/ICS subscription URL from Google Calendar, Outlook, Apple Calendar, or another provider.</p>
+    <form id="add">
+      <label for="name">Calendar name</label><input id="name" maxlength="80" placeholder="Family" required>
+      <label for="url">Private iCal URL</label><input id="url" type="url" placeholder="https://example.com/calendar.ics" autocomplete="off" required>
+      <div class="actions"><button type="button" class="secondary" id="test">Test connection</button><button type="submit">Add calendar</button></div>
+    </form>
+    <p id="message" role="status" aria-live="polite"></p>
+    <p class="muted">URLs remain in your private local data volume and are never displayed back through the API.</p>
+  </section>
+  <section><h2>Calendar feed</h2><p>Once connected, your merged events are available from <code>/api/events</code> to the local screen renderer.</p></section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+async function api(path,options={}){
+  const response=await fetch(path,{...options,headers:{'Content-Type':'application/json',...options.headers},cache:'no-store'});
+  if(!response.ok){let detail;try{detail=(await response.json()).detail}catch{}throw Error(typeof detail==='string'?detail:'Request failed');}
+  return response.json();
+}
+async function load(){
+  const items=await api('/api/calendars');const parent=$('calendars');parent.replaceChildren();
+  if(!items.length){const p=document.createElement('p');p.textContent='No calendars connected yet.';parent.append(p);return;}
+  for(const item of items){
+    const row=document.createElement('div');row.className='row';
+    const info=document.createElement('div'),name=document.createElement('div'),status=document.createElement('div');
+    name.className='name';name.textContent=item.name;status.className='muted';status.textContent=item.enabled?'Enabled':'Paused';
+    info.append(name,status);
+    const actions=document.createElement('div');actions.className='actions';
+    for(const [label,action,style] of [[item.enabled?'Pause':'Enable','toggle','secondary'],['Remove','remove','danger']]){
+      const button=document.createElement('button');button.className=style;button.textContent=label;
+      button.onclick=async()=>{if(action==='remove'&&!confirm('Remove this calendar?'))return;
+        try{await api('/api/calendars/'+encodeURIComponent(item.id)+(action==='toggle'?'/toggle':''),{method:action==='toggle'?'POST':'DELETE'});await load()}catch(e){$('message').textContent=e.message}};
+      actions.append(button);
+    }
+    row.append(info,actions);parent.append(row);
+  }
+}
+function payload(){return {name:$('name').value.trim(),url:$('url').value.trim()}}
+async function submit(test){
+  $('message').textContent='Checking calendar…';
+  try{const data=await api(test?'/api/calendars/test':'/api/calendars',{method:'POST',body:JSON.stringify(payload())});
+    $('message').textContent=test?'Connection successful · '+data.event_count+' events found.':'Calendar added successfully.';
+    if(!test){$('add').reset();await load();}
+  }catch(e){$('message').textContent=e.message;}
+}
+$('test').onclick=()=>submit(true);
+$('add').onsubmit=e=>{e.preventDefault();submit(false)};
+load().catch(e=>$('message').textContent=e.message);
+</script>
+</body></html>
