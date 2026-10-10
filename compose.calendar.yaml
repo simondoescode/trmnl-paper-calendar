@@ -2,6 +2,7 @@ services:
   calendar:
     build: ./calendar_service
     environment:
+      CALENDAR_ADMIN_USERNAME: ${CALENDAR_ADMIN_USERNAME:?Set CALENDAR_ADMIN_USERNAME in a private .env file}
       CALENDAR_ADMIN_PASSWORD: ${CALENDAR_ADMIN_PASSWORD:?Set CALENDAR_ADMIN_PASSWORD in a private .env file}
       CALENDAR_DB_PATH: /data/calendars.sqlite
     ports:
