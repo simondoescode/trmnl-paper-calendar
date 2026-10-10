@@ -21,14 +21,15 @@ from pydantic import BaseModel, Field
 from zoneinfo import ZoneInfo
 
 DB_PATH = Path(os.getenv("CALENDAR_DB_PATH", "/data/calendars.sqlite"))
+USERNAME = os.getenv("CALENDAR_ADMIN_USERNAME", "")
 PASSWORD = os.getenv("CALENDAR_ADMIN_PASSWORD", "")
 LOCAL_TZ = ZoneInfo("Europe/London")
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
 
 def require_auth(request: Request):
-    if not PASSWORD:
-        raise HTTPException(503, "Set CALENDAR_ADMIN_PASSWORD before starting")
+    if not USERNAME or not PASSWORD:
+        raise HTTPException(503, "Set CALENDAR_ADMIN_USERNAME and CALENDAR_ADMIN_PASSWORD before starting")
     header = request.headers.get("authorization", "")
     if not header.startswith("Basic "):
         raise HTTPException(401, headers={"WWW-Authenticate": 'Basic realm="Paper Calendar"'})
@@ -37,7 +38,7 @@ def require_auth(request: Request):
         username, supplied = decoded.split(":", 1)
     except (ValueError, UnicodeError):
         raise HTTPException(401, headers={"WWW-Authenticate": 'Basic realm="Paper Calendar"'})
-    if not (secrets.compare_digest(username, "admin") and secrets.compare_digest(supplied, PASSWORD)):
+    if not (secrets.compare_digest(username, USERNAME) and secrets.compare_digest(supplied, PASSWORD)):
         raise HTTPException(401, headers={"WWW-Authenticate": 'Basic realm="Paper Calendar"'})
 
 
