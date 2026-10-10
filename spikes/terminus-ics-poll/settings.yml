@@ -2,7 +2,7 @@
 name: Paper Calendar ICS Poll Test
 strategy: polling
 polling_verb: get
-polling_url: https://raw.githubusercontent.com/usetrmnl/terminus/main/spec/support/fixtures/calendar.ics
+polling_url: https://raw.githubusercontent.com/simondoescode/trmnl-paper-calendar/main/spikes/terminus-ics-poll/sample.ics
 polling_headers: "Accept=text/calendar"
 refresh_interval: 60
 dark_mode: 'no'
