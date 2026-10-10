@@ -1,0 +1,11 @@
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+
+# Generated build/preview outputs
+build/
+dist/
+tmp/
