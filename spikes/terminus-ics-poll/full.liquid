@@ -1,0 +1,25 @@
+<div class="layout">
+  <div class="item">
+    <div class="meta"><span class="label">NATIVE ICS POLLING TEST</span></div>
+    <div class="content">
+      <span class="title title--small">Parsed calendar feed</span>
+      {% assign records = source_1 %}
+      {% if records and records.size > 0 %}
+        {% for calendar in records limit: 2 %}
+          <span class="description">Calendar: {{ calendar.name | default: "Unnamed" | escape }}</span>
+          {% for event in calendar.events limit: 8 %}
+            <div class="item">
+              <div class="content">
+                <span class="title title--small" data-clamp="1">{{ event.summary | default: "Untitled" | escape }}</span>
+                <span class="description">{{ event.start_at | escape }}</span>
+              </div>
+            </div>
+          {% endfor %}
+        {% endfor %}
+      {% else %}
+        <span class="description">No parsed calendars found in source_1. Inspect exchange data in Terminus.</span>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<div class="title_bar"><span class="title">ICS Parser Proof</span><span class="instance">Terminus polling</span></div>
