@@ -1,24 +1,92 @@
-<div class="layout">
-  <div class="grid grid--cols-1 gap--large">
-    <div class="item">
-      <div class="meta">
-        <span class="label">PAPER CALENDAR</span>
-      </div>
-      <div class="content">
-        <span class="title title--large">Hello World!</span>
-        <span class="description">Your self-hosted TRMNL paper calendar starts here.</span>
-      </div>
-    </div>
-    <div class="item">
-      <div class="content">
-        <span class="title title--small">Today</span>
-        <span class="description">Calendar integration coming next.</span>
-      </div>
-    </div>
-  </div>
-</div>
+{% comment %}
+  Terminus Poll exchange data: source_1, source_2, source_3.
+  Fetch and parse ICS with Terminus's own text/calendar handler.
+  Times are formatted by the server's Liquid date filter; for UK local
+  display configure the Terminus runtime timezone to Europe/London.
+  RRULE entries are NOT expanded by Terminus.
+{% endcomment %}
+{% assign today_key = 'now' | date: '%Y-%m-%d' %}
+{% assign today_epoch = today_key | date: '%s' | plus: 0 %}
+{% assign week_end_epoch = today_epoch | plus: 604800 %}
+{% assign calendar_feeds = source_1 %}
+{% if source_2 %}
+  {% assign calendar_feeds = calendar_feeds | concat: source_2 %}
+{% endif %}
+{% if source_3 %}
+  {% assign calendar_feeds = calendar_feeds | concat: source_3 %}
+{% endif %}
 
-<div class="title_bar">
-  <span class="title">Paper Calendar</span>
-  <span class="instance">Local development</span>
+<style>
+  /* 800×480 TRMNL OG, four e-paper-friendly greys: white, light, mid, black */
+  .pc-screen {width:800px;height:480px;box-sizing:border-box;background:#fff;color:#000;font-family:inherit;overflow:hidden}
+  .pc-columns {display:grid;grid-template-columns:62% 38%;height:440px}
+  .pc-today {background:#fff;padding:22px 20px 12px 24px;overflow:hidden}
+  .pc-week {background:#dedede;padding:22px 18px 12px;overflow:hidden;border-left:2px solid #aaa}
+  .pc-heading {margin:0 0 14px;font-size:24px;font-weight:800;letter-spacing:-.5px;line-height:1.1}
+  .pc-kicker {font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+  .pc-event {background:#f0f0f0;border-radius:7px;padding:9px 12px;margin:0 0 8px;min-height:48px;box-sizing:border-box}
+  .pc-event-title {font-size:18px;line-height:1.25;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pc-event-time {font-size:12px;color:#444;font-weight:650;margin-bottom:2px}
+  .pc-week-event {background:#fff;border-radius:6px;padding:8px 10px;margin-bottom:8px;min-height:46px;box-sizing:border-box}
+  .pc-week-day {font-size:11px;font-weight:800;color:#444;text-transform:uppercase}
+  .pc-week-title {font-size:15px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pc-empty {font-size:17px;color:#444;margin-top:26px}
+  .pc-footer {height:40px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;background:#aaa;font-size:12px;font-weight:700}
+</style>
+
+<div class="screen screen--og pc-screen">
+  <div class="view view--full" style="height:480px;display:block;overflow:hidden">
+    <div class="pc-columns">
+      <section class="pc-today">
+        <div class="pc-kicker">{{ 'now' | date: '%A %d %B' }}</div>
+        <h1 class="pc-heading">Today</h1>
+        {% assign today_count = 0 %}
+        {% for calendar in calendar_feeds %}
+          {% assign ordered_events = calendar.events | sort: 'start_at' %}
+          {% for event in ordered_events %}
+            {% assign event_day = event.start_at | date: '%Y-%m-%d' %}
+            {% if event_day == today_key and today_count < 5 %}
+              <div class="pc-event">
+                <div class="pc-event-time">{{ event.start_at | date: '%H:%M' }}</div>
+                <div class="pc-event-title">{{ event.summary | default: 'Untitled event' | escape }}</div>
+              </div>
+              {% assign today_count = today_count | plus: 1 %}
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+        {% if today_count == 0 %}
+          <div class="pc-empty">Nothing planned for today</div>
+        {% endif %}
+      </section>
+
+      <section class="pc-week">
+        <div class="pc-kicker">Coming up</div>
+        <h2 class="pc-heading">This Week</h2>
+        {% assign week_count = 0 %}
+        {% for calendar in calendar_feeds %}
+          {% assign ordered_events = calendar.events | sort: 'start_at' %}
+          {% for event in ordered_events %}
+            {% assign event_epoch = event.start_at | date: '%s' | plus: 0 %}
+            {% if event_epoch >= today_epoch and event_epoch < week_end_epoch %}
+              {% assign event_day = event.start_at | date: '%Y-%m-%d' %}
+              {% if event_day != today_key and week_count < 6 %}
+                <div class="pc-week-event">
+                  <div class="pc-week-day">{{ event.start_at | date: '%a %d %b' }}</div>
+                  <div class="pc-week-title">{{ event.summary | default: 'Untitled event' | escape }}</div>
+                </div>
+                {% assign week_count = week_count | plus: 1 %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+        {% if week_count == 0 %}
+          <div class="pc-empty">Nothing else scheduled</div>
+        {% endif %}
+      </section>
+    </div>
+    <footer class="pc-footer">
+      <span>Paper Calendar</span>
+      <span>Updated {{ 'now' | date: '%d %b %H:%M' }}</span>
+    </footer>
+  </div>
 </div>
