@@ -36,6 +36,7 @@ begin
                        viewport: { width: 800, height: 480 })
   driver.navigate.to('http://preview:8080/preview')
   wait.until { driver.execute_script('return document.fonts.status === "loaded"') }
+  assert(driver.execute_script('return [...document.fonts].some(font => font.family === "Manrope" && font.status === "loaded")'), 'Embedded Manrope did not load')
   assert(driver.find_element(css: '.pc-day').text == 'Tuesday', 'Simulated weekday failed')
   assert(driver.find_element(css: '.pc-date').text == '13 October', 'Simulated date failed')
   assert(driver.find_elements(css: '.pc-event').length == 4, 'Expected four Today cards')

@@ -10,7 +10,7 @@ Reference implementation: [original ESP32 renderer](https://github.com/simondoes
 - White Today cards: 72 px timed, 48 px light-grey all-day, split time/title fields, rounded outline.
 - Full-height light-grey right sidebar with **Later this week** heading, three forecast slots, and narrow day-labelled upcoming cards.
 - Footer with today count, last-rendered time, connection label and optional battery reading.
-- Original Manrope-like typography, with local/system fallbacks; no font files are copied or redistributed.
+- Manrope typography using an embedded Latin variable WOFF2 subset (weights 400–800), with local/system fallbacks for unsupported glyphs. The font and its full SIL Open Font License are included in the Liquid template; see [font details](../assets/fonts/README.md).
 
 The Liquid palette uses exactly four shades: black (`#000`), dark grey (`#555`) for Today card outlines, light grey (`#aaa`) for all-day cards and the sidebar, and white (`#fff`) for timed cards and the main panel. These shades survive the local preview's four-level quantization; the previous `#dedede` backgrounds mapped to white.
 
