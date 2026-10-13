@@ -123,4 +123,14 @@ The template keeps Terminus `source_1`, `source_2`, `source_3` arrays of calenda
 
 **The production plugin does not depend on this backend.** Paste `src/full.liquid` into Terminus using [native Poll setup](docs/TERMINUS_TODAY_WEEK.md). Native parsing does not provide all adapter metadata or expanded recurrence. Raw feeds remain sorted per calendar; recurrence, all-day flags, continuation and DST need production-side normalization and verification. Production weather requires a compatible `weather` object. Its existing Sunday week-boundary arithmetic differs from the normalized local calendar week. Terminus feature parity is not claimed.
 
+## Plugin packaging
+
+Build a flat ZIP of the current production plugin with `python scripts/package_plugin.py` (Python 3.12), or without installing Python locally:
+
+```sh
+docker compose run --rm --no-deps --volume .:/plugin --workdir /plugin preview python scripts/package_plugin.py
+```
+
+The output is `dist/paper-calendar.zip`. Only the explicit plugin-file allowlist is exported; the local preview backend, configuration and fixtures are excluded. GitHub Actions uploads the ZIP on PRs and main pushes; version tags publish it as a GitHub release asset. Packaging does not connect ICS sources or provision Terminus exchanges. See [packaging and import limitations](docs/TERMINUS.md).
+
 See [architecture and data contract](docs/LOCAL_PREVIEW.md), [design port](docs/DESIGN_PORT.md) and [optional calendar setup service](docs/CALENDAR_SETUP.md).
