@@ -138,8 +138,8 @@ END MANROPE LICENCE{% endcomment %}
 .pc * {box-sizing:border-box}
 .pc-main {position:absolute;left:0;top:0;width:487px;height:448px;background:#fff}
 .pc-head {height:112px;background:#000;color:#fff;padding:16px 20px;position:relative}
-.pc-date {font-size:14px;font-weight:700;line-height:19px}
-.pc-day {font-size:39px;letter-spacing:-1.3px;font-weight:800;line-height:48px;margin-top:3px}
+.pc-date {font-size:15px;font-weight:650;line-height:20px}
+.pc-day {font-size:42px;letter-spacing:-1.3px;font-weight:800;line-height:50px;margin-top:3px}
 .pc-weather {position:absolute;right:16px;top:20px;width:147px;text-align:right;line-height:1.25}
 .pc-weather-topline {display:flex;align-items:center;justify-content:flex-end;gap:8px}
 .pc-weather-icon {width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex:none}
@@ -151,20 +151,23 @@ END MANROPE LICENCE{% endcomment %}
 .pc-today-events {height:336px;padding:16px 16px 8px}
 .pc-event {height:72px;margin-bottom:10px;border:1px solid #555;border-radius:10px;display:flex;align-items:center;overflow:hidden;background:#fff;color:#000}
 .pc-event.pc-all-day {height:48px;background:#aaa}
-.pc-time {width:106px;flex:none;align-self:stretch;display:flex;align-items:center;justify-content:flex-start;padding-left:12px;font-weight:800;font-size:13px;border-right:1px solid #000}
+.pc-time {width:82px;flex:none;align-self:stretch;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;border-right:1px solid #555}
 .pc-event-inner {min-width:0;flex:1;padding:0 14px;display:flex;flex-direction:column;justify-content:center;height:100%;gap:5px}
-.pc-event-title {font-size:19px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15}
-.pc-event-detail {font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-event-title {font-size:18px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25}
+.pc-all-day .pc-event-title {font-size:17px}
+.pc-event-detail {font-size:11px;font-weight:600;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
 .pc-empty {font-size:17px;font-weight:650;padding:18px 6px}
 .pc-aside {position:absolute;top:0;right:0;width:313px;height:448px;background:#aaa;padding:16px 16px 8px}
-.pc-aside-title {font-size:24px;letter-spacing:-.6px;font-weight:800;line-height:30px;margin:0 0 8px}
-.pc-forecast {height:82px;display:flex;gap:6px;justify-content:space-between}
+.pc-aside-title {font-size:22px;letter-spacing:-.5px;font-weight:800;line-height:30px;margin:0 0 8px}
+.pc-forecast {height:82px;display:flex;gap:6px;justify-content:space-between;border-bottom:1px solid #555;margin-bottom:8px}
 .pc-forecast-day {flex:1;min-width:0;text-align:center}
 .pc-forecast-name {font-size:11px;font-weight:700}
 .pc-forecast-icon {height:38px;display:flex;align-items:center;justify-content:center;font-size:23px}
+.pc-forecast-range {font-size:11px;font-weight:750;line-height:16px}
+.pc-forecast-low {font-weight:600;color:#555;margin-left:5px}
 .pc-week-card {height:52px;margin-bottom:8px;display:flex;border:1px solid #000;border-radius:10px;background:#fff;overflow:hidden;align-items:center}
-.pc-week-day {width:44px;flex:none;font-size:10px;font-weight:800;text-align:center;line-height:50px;border-right:1px solid #000}
-.pc-week-title {flex:1;min-width:0;padding:0 12px;font-size:12px;font-weight:750;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.pc-week-day {width:48px;flex:none;align-self:stretch;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;text-align:center;background:#aaa;border-right:1px solid #555}
+.pc-week-title {flex:1;min-width:0;padding:0 12px;font-size:13px;font-weight:750;line-height:18px;max-height:36px;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow-wrap:anywhere}
 .pc-footer {position:absolute;left:0;right:0;bottom:0;height:32px;border-top:1px solid #000;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:#fff;font-size:10px;font-weight:700}
 .pc-footer-left,.pc-footer-right {display:flex;gap:12px;align-items:center;min-width:0}
 .pc-footer .pc-dot {width:3px;height:3px;background:#000;border-radius:50%;display:inline-block}
@@ -239,7 +242,8 @@ END MANROPE LICENCE{% endcomment %}
                   <div class="pc-time">{{ event.start_at | date: '%H:%M' }}</div>
                   <div class="pc-event-inner">
                     <div class="pc-event-title">{% if event.continuation %}Continues: {% endif %}{{ event.summary | default: 'Untitled' | escape }}</div>
-                    {% if event.location != empty %}<div class="pc-event-detail">{{ event.location | escape }}</div>{% endif %}
+                    {% assign pc_detail = event.location | default: event.calendar_name %}
+                    {% if pc_detail and pc_detail != empty %}<div class="pc-event-detail">{{ pc_detail | escape }}</div>{% endif %}
                   </div>
                 </div>
                 {% assign pc_today_count = pc_today_count | plus: 1 %}
@@ -272,6 +276,7 @@ END MANROPE LICENCE{% endcomment %}
                     {% else %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18h12a3 3 0 0 0 0-6h-1a5 5 0 0 0-9.5-1.5A4 4 0 0 0 6 18Z"></path></svg>
                   {% endcase %}
                 </div>
+                {% if day.high != nil and day.low != nil %}<div class="pc-forecast-range">{{ day.high | escape }}°<span class="pc-forecast-low">{{ day.low | escape }}°</span></div>{% endif %}
               </div>
             {% endfor %}
           {% else %}
