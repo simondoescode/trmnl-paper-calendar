@@ -91,17 +91,20 @@ async def build(controls):
     timestamp = datetime.now(TZ).isoformat()
     weather_status = controls.weather_mode
     weather_data = None
+    weather_failed = False
     if controls.weather_mode == "mock":
         mock = json.loads((ROOT / "fixtures" / "weather.json").read_text())
         mock["daily"]["time"] = [(selected + timedelta(days=i)).isoformat() for i in range(3)]
         weather_data = weather.normalize(mock, local_timestamp(selected))
+        weather_data["stale"] = False
     elif controls.weather_mode == "live":
         try:
             weather_cache = await weather.live()
             weather_status = "live: ok (forecast dates are actual, not simulated)"
         except Exception:
-            weather_status = "live: unavailable; using last successful response" if weather_cache else "live: unavailable; check coordinates"
-        weather_data = weather_cache
+            weather_failed = True
+            weather_status = "live: stale; refresh failed; using last successful response" if weather_cache else "live: unavailable; check coordinates or HTTPS access"
+        weather_data = {**weather_cache, "stale": weather_failed} if weather_cache else None
     # One merged calendar gives native nested loops global chronological order.
     result = {"source_1": [{"name": "Merged calendars", "events": ordered(events), "ordered": True}],
               "preview_now": local_timestamp(selected),
@@ -110,7 +113,7 @@ async def build(controls):
               "weather": weather_data, "connection_label": "Local preview"}
     if len(json.dumps(result).encode()) > 95_000:
         raise HTTPException(422, "Preview exceeds the native renderer data limit; choose a smaller feed")
-    statuses_ok = all(s["status"] == "ok" for s in sources) and not weather_status.startswith("live: unavailable")
+    statuses_ok = all(s["status"] == "ok" for s in sources) and not weather_failed
     return result, {"event_count": len(events), "calendars": sources, "weather": weather_status,
                     "last_successful_refresh": timestamp if statuses_ok else diagnostics.get("last_successful_refresh"),
                     "weather_updated": weather_data.get("last_successful_update") if weather_data else None,

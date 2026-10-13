@@ -58,6 +58,24 @@ begin
   driver.save_screenshot("#{out}/mock-repeat.png")
   assert(File.binread("#{out}/mock-preview.png") == File.binread("#{out}/mock-repeat.png"), 'Repeated mock screenshot changed')
 
+  weather_payload = JSON.parse(Net::HTTP.get(URI('http://preview:8080/api/context')))
+  [true, false].each do |stale|
+    weather_payload['weather']['stale'] = stale
+    weather_payload['weather']['last_successful_update'] = '2026-10-12T21:45:00+01:00'
+    response = Net::HTTP.post(URI('http://renderer:4567/render'), weather_payload.to_json, 'Content-Type' => 'application/json')
+    assert(response.code == '200', 'Weather status render failed')
+    driver.execute_script('document.open(); document.write(arguments[0]); document.close();', response.body)
+    wait.until { driver.execute_script('return document.fonts.status === "loaded"') }
+    if stale
+      assert(driver.find_element(css: '.pc-weather-status').text == 'Stale · 12 Oct 21:45', 'Stale weather timestamp missing')
+      assert(driver.find_elements(css: '.pc-forecast-icon svg').length == 3, 'Cached forecasts disappeared')
+      assert(driver.execute_script('return document.querySelector(".pc-weather-status").getBoundingClientRect().bottom <= document.querySelector(".pc-head").getBoundingClientRect().bottom'), 'Stale badge overflows header')
+      driver.save_screenshot("#{out}/stale-weather.png")
+    else
+      assert(driver.find_elements(css: '.pc-weather-status').empty?, 'Stale label persists after recovery')
+    end
+  end
+
   # Count across sources, including all-day events, and reserve real space for overflow.
   [[4, 3, 0], [7, 6, 0], [7, 6, 5]].each do |today_count, later_count, all_day_count|
     events = Array.new(today_count) do |i|

@@ -148,6 +148,7 @@ END MANROPE LICENCE{% endcomment %}
 .pc-weather-temp {font-size:25px;font-weight:800;line-height:1}
 .pc-weather-condition {font-size:12px;margin-top:7px}
 .pc-weather-range {font-size:10px;margin-top:7px}
+.pc-weather-status {font-size:10px;font-weight:800;line-height:12px;margin-top:3px}
 .pc-today-events {height:336px;padding:16px 16px 8px}
 .pc-event {height:72px;margin-bottom:10px;border:1px solid #555;border-radius:10px;display:flex;align-items:center;overflow:hidden;background:#fff;color:#000}
 .pc-event.pc-all-day {height:48px;background:#aaa}
@@ -222,6 +223,7 @@ END MANROPE LICENCE{% endcomment %}
               </div>
               <div class="pc-weather-condition">{{ weather.current.description | escape }}</div>
               <div class="pc-weather-range">{{ weather.current.range | escape }}</div>
+              {% if weather.stale %}<div class="pc-weather-status" title="Refresh failed; displaying the last successful weather response">Stale{% if weather.last_successful_update %} · {{ weather.last_successful_update | date: '%-d %b %H:%M' }}{% endif %}</div>{% endif %}
             {% else %}
               <div class="pc-weather-condition">Weather unavailable</div>
             {% endif %}

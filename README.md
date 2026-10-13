@@ -69,7 +69,7 @@ WEATHER_UNITS=celsius
 
 These are example coordinates, not hard-coded defaults. Both coordinates are required; units support `celsius` or `fahrenheit`. Recreate the preview service after environment changes, select **live**, then refresh. [Open-Meteo](https://open-meteo.com/en/docs) supplies current temperature/condition, daily highs/lows, precipitation probability and three forecasts. WMO codes map to stable identifiers for the existing SVG icons. No API key is needed.
 
-Successful live weather stays cached in memory after failures. Diagnostics show its last successful timestamp and stale status. Refresh always retries. **Live weather follows actual API dates even when the calendar is simulated**; historical weather is not implemented. Mock weather and its footer timestamp are deterministic; diagnostics show actual refresh time.
+Successful live weather stays cached in memory after failures. The screen retains its temperature and forecast and shows **Stale · 12 Oct 21:45**, using the last successful response's London date/time. Diagnostics explicitly report a failed refresh and cached response. Without any successful response, the screen shows **Weather unavailable**. A successful refresh removes the stale label. Refresh always retries. **Live weather follows actual API dates even when the calendar is simulated**; historical weather is not implemented. Mock weather and its footer timestamp are deterministic; diagnostics show actual refresh time.
 
 ## Tests and diagnostics
 

@@ -161,9 +161,14 @@ class ServiceTests(unittest.IsolatedAsyncioTestCase):
             result, _ = await app.build(controls)
         with patch("weather.live", AsyncMock(side_effect=ValueError("private failure"))):
             result, status = await app.build(controls)
-        self.assertEqual(result["weather"], good)
+        self.assertEqual(result["weather"], {**good, "stale": True})
+        self.assertEqual(app.weather_cache, good)
         self.assertIn("last successful", status["weather"])
         self.assertNotIn("private failure", json.dumps(status))
+        with patch("weather.live", AsyncMock(return_value=good)):
+            recovered, recovered_status = await app.build(controls)
+        self.assertFalse(recovered["weather"]["stale"])
+        self.assertIn("live: ok", recovered_status["weather"])
 
     async def test_missing_configuration_and_disabled_weather(self):
         with patch.dict(os.environ, {"PREVIEW_CALENDARS_FILE": "/does-not-exist"}):
