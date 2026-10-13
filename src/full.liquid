@@ -41,8 +41,8 @@
 .pc-day {font-size:39px;letter-spacing:-1.3px;font-weight:800;line-height:48px;margin-top:3px}
 .pc-weather {position:absolute;right:16px;top:20px;width:147px;text-align:right;line-height:1.25}
 .pc-weather-topline {display:flex;align-items:center;justify-content:flex-end;gap:8px}
-.pc-weather-icon {width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex:none}
-.pc-weather-icon svg,.pc-forecast-icon svg {width:100%;height:100%;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pc-weather-icon {width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex:none}
+.pc-weather-icon svg,.pc-forecast-icon svg {width:32px;height:32px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .pc-forecast-icon svg {stroke:#000}
 .pc-weather-temp {font-size:25px;font-weight:800;line-height:1}
 .pc-weather-condition {font-size:12px;margin-top:7px}
@@ -85,23 +85,23 @@
                     {% when 'sun' %}
                       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"></circle><path d="M12 2v2.5M12 19.5V22M4.93 4.93l1.77 1.77M17.3 17.3l1.77 1.77M2 12h2.5M19.5 12H22M4.93 19.07l1.77-1.77M17.3 6.7l1.77-1.77"></path></svg>
                     {% when 'sun-cloud' %}
-                      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="14.5" cy="8.5" r="3.7"></circle><path d="M5 16.5a3.5 3.5 0 0 1 0-7 4.7 4.7 0 0 1 8.8-1.9A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path><path d="M13.5 8.5h3.2"></path></svg>
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="17" cy="6" r="3"></circle><path d="M6 20h12a3 3 0 0 0 0-6h-1a5 5 0 0 0-9.5-1.5A4 4 0 0 0 6 20Z"></path><path d="M17 1v1M22 6h1M21 2l1-1"></path></svg>
                     {% when 'cloud' %}
-                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path></svg>
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18h12a3 3 0 0 0 0-6h-1a5 5 0 0 0-9.5-1.5A4 4 0 0 0 6 18Z"></path></svg>
                     {% when 'rain' %}
-                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path><path d="M8 18.5v1.5M12 18.5v1.5M16 18.5v1.5"></path></svg>
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14h12a3 3 0 0 0 0-6h-1a5 5 0 0 0-9.5-1.5A4 4 0 0 0 6 14Z"></path><path d="M8 17l-1 3M13 17l-1 3M18 17l-1 3"></path></svg>
                     {% when 'storm' %}
-                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path><path d="m12 18 2.2-5H10l2.2-5 3.1 4.2H13l1.7 5.8Z"></path></svg>
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14h12a3 3 0 0 0 0-6h-1a5 5 0 0 0-9.5-1.5A4 4 0 0 0 6 14Z"></path><path d="m13 16-3 4h4l-2 3"></path></svg>
                     {% when 'snow' %}
-                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path><path d="M12 18v1.5M12 14.5v1.5M10 16.5h4M10.5 14l3 6M13.5 14l-3 6"></path></svg>
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14h12a3 3 0 0 0 0-6h-1a5 5 0 0 0-9.5-1.5A4 4 0 0 0 6 14Z"></path><path d="M8 17v4M6 19h4M16 17v4M14 19h4"></path></svg>
                     {% when 'fog' %}
-                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path><path d="M7.5 18h9M7 20h12M9 16.5h9"></path></svg>
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14h12a3 3 0 0 0 0-6h-1a5 5 0 0 0-9.5-1.5A4 4 0 0 0 6 14Z"></path><path d="M4 18h16M6 21h12"></path></svg>
                     {% when 'wind' %}
-                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h11.5a2.5 2.5 0 1 1 0 5H15M4 6h15.5M4 13h9.5a2.5 2.5 0 0 0 0-5H9"></path></svg>
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h12a3 3 0 1 0-3-3M2 12h17a3 3 0 1 1-3 3M4 16h5a2 2 0 1 1-2 2"></path></svg>
                     {% when 'moon' %}
                       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A7.5 7.5 0 0 1 9.5 4a7.5 7.5 0 1 0 10.5 10.5Z"></path></svg>
                     {% else %}
-                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path></svg>
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18h12a3 3 0 0 0 0-6h-1a5 5 0 0 0-9.5-1.5A4 4 0 0 0 6 18Z"></path></svg>
                   {% endcase %}
                 </div>
                 <div class="pc-weather-temp">{{ weather.current.temperature }}°</div>
@@ -160,15 +160,15 @@
                 <div class="pc-forecast-icon">
                   {% case pc_forecast_key %}
                     {% when 'sun', 'clear', 'sunny' %}<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"></circle><path d="M12 2v2.5M12 19.5V22M4.93 4.93l1.77 1.77M17.3 17.3l1.77 1.77M2 12h2.5M19.5 12H22M4.93 19.07l1.77-1.77M17.3 6.7l1.77-1.77"></path></svg>
-                    {% when 'sun-cloud', 'partly cloudy', 'partly sunny', 'mostly sunny', 'mostly clear', 'sun cloud' %}<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="14.5" cy="8.5" r="3.7"></circle><path d="M5 16.5a3.5 3.5 0 0 1 0-7 4.7 4.7 0 0 1 8.8-1.9A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path><path d="M13.5 8.5h3.2"></path></svg>
-                    {% when 'cloud', 'overcast', 'cloudy', 'grey', 'gray' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path></svg>
-                    {% when 'rain', 'showers', 'drizzle', 'rain showers', 'light rain', 'moderate rain', 'heavy rain' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path><path d="M8 18.5v1.5M12 18.5v1.5M16 18.5v1.5"></path></svg>
-                    {% when 'storm', 'thunderstorm', 'thunder' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path><path d="m12 18 2.2-5H10l2.2-5 3.1 4.2H13l1.7 5.8Z"></path></svg>
-                    {% when 'snow', 'sleet', 'blizzard' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path><path d="M12 18v1.5M12 14.5v1.5M10 16.5h4M10.5 14l3 6M13.5 14l-3 6"></path></svg>
-                    {% when 'mist', 'fog', 'haze', 'smoke', 'dust' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path><path d="M7.5 18h9M7 20h12M9 16.5h9"></path></svg>
-                    {% when 'wind', 'windy', 'breezy' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h11.5a2.5 2.5 0 1 1 0 5H15M4 6h15.5M4 13h9.5a2.5 2.5 0 0 0 0-5H9"></path></svg>
+                    {% when 'sun-cloud', 'partly cloudy', 'partly sunny', 'mostly sunny', 'mostly clear', 'sun cloud' %}<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="17" cy="6" r="3"></circle><path d="M6 20h12a3 3 0 0 0 0-6h-1a5 5 0 0 0-9.5-1.5A4 4 0 0 0 6 20Z"></path><path d="M17 1v1M22 6h1M21 2l1-1"></path></svg>
+                    {% when 'cloud', 'overcast', 'cloudy', 'grey', 'gray' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18h12a3 3 0 0 0 0-6h-1a5 5 0 0 0-9.5-1.5A4 4 0 0 0 6 18Z"></path></svg>
+                    {% when 'rain', 'showers', 'drizzle', 'rain showers', 'light rain', 'moderate rain', 'heavy rain' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14h12a3 3 0 0 0 0-6h-1a5 5 0 0 0-9.5-1.5A4 4 0 0 0 6 14Z"></path><path d="M8 17l-1 3M13 17l-1 3M18 17l-1 3"></path></svg>
+                    {% when 'storm', 'thunderstorm', 'thunder' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14h12a3 3 0 0 0 0-6h-1a5 5 0 0 0-9.5-1.5A4 4 0 0 0 6 14Z"></path><path d="m13 16-3 4h4l-2 3"></path></svg>
+                    {% when 'snow', 'sleet', 'blizzard' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14h12a3 3 0 0 0 0-6h-1a5 5 0 0 0-9.5-1.5A4 4 0 0 0 6 14Z"></path><path d="M8 17v4M6 19h4M16 17v4M14 19h4"></path></svg>
+                    {% when 'mist', 'fog', 'haze', 'smoke', 'dust' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14h12a3 3 0 0 0 0-6h-1a5 5 0 0 0-9.5-1.5A4 4 0 0 0 6 14Z"></path><path d="M4 18h16M6 21h12"></path></svg>
+                    {% when 'wind', 'windy', 'breezy' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h12a3 3 0 1 0-3-3M2 12h17a3 3 0 1 1-3 3M4 16h5a2 2 0 1 1-2 2"></path></svg>
                     {% when 'moon', 'moonlit', 'clear night' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A7.5 7.5 0 0 1 9.5 4a7.5 7.5 0 1 0 10.5 10.5Z"></path></svg>
-                    {% else %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path></svg>
+                    {% else %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18h12a3 3 0 0 0 0-6h-1a5 5 0 0 0-9.5-1.5A4 4 0 0 0 6 18Z"></path></svg>
                   {% endcase %}
                 </div>
               </div>
