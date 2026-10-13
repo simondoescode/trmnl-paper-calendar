@@ -43,6 +43,8 @@ def parse(body, name, selected):
         ends = local(event.decoded("DTEND", raw + (timedelta(days=1) if all_day else timedelta(0))))
         if ends.timestamp() < begins.timestamp():
             raise ValueError("Event ends before its start")
+        last_day = (datetime.fromtimestamp(ends.timestamp() - 0.000001, TZ).date()
+                    if ends.timestamp() > begins.timestamp() else begins.date())
         # Split into display-day segments; DTEND is exclusive, including dates.
         day = max(selected, begins.date())
         while day < end.date() and (local(day).timestamp() < ends.timestamp() or (ends.timestamp() == begins.timestamp() and day == begins.date())):
@@ -52,6 +54,7 @@ def parse(body, name, selected):
                            "start_at": segment.isoformat(), "end_at": ends.isoformat(),
                            "original_start_at": begins.isoformat(), "all_day": all_day,
                            "continuation": day > begins.date(), "uid": clean(event.get("UID"))})
+            result[-1].update(multi_day=last_day > begins.date(), last_day=last_day.isoformat())
             if len(result) > MAX_EVENTS:
                 raise ValueError("Calendar exceeds 500 display segments")
             day += timedelta(days=1)

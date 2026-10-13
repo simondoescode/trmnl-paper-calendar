@@ -87,7 +87,12 @@ begin
   refresh(date: '2026-10-16')
   driver.navigate.refresh
   assert(driver.find_element(css: '.pc-day').text == 'Friday', 'Date change failed')
-  assert(driver.find_elements(css: '.pc-event-title').any? { |e| e.text.include?('Continues: Overnight travel') }, 'Cross-midnight continuation missing')
+  assert(driver.find_elements(css: '.pc-event').any? { |e| e.text.include?('Overnight travel') && e.text.include?('Continues') }, 'Cross-midnight continuation missing')
+  assert(driver.find_elements(css: '.pc-all-day').any? { |e| e.text.include?('Family trip') && e.text.include?('Continues') && !e.text.include?('Until Saturday') }, 'All-day exclusive end label incorrect')
+  refresh(date: '2026-10-14')
+  driver.navigate.refresh
+  assert(driver.find_element(css: '.pc-all-day').text.include?('Until Friday'), 'Multi-day start label missing')
+  assert(driver.find_elements(css: '.pc-week-card').any? { |e| e.text.include?('Continues') && e.text.include?('Until Friday') }, 'Upcoming continuation label missing')
   refresh(date: '2026-10-25', scenario: 'autumn-dst')
   driver.navigate.refresh
   assert(driver.find_elements(css: '.pc-event').length == 3, 'DST occurrences missing')

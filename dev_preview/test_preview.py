@@ -70,6 +70,7 @@ class CalendarTests(unittest.TestCase):
         self.assertEqual(len(trip), 3)
         self.assertTrue(all(e["all_day"] for e in trip))
         self.assertEqual([e["continuation"] for e in trip], [False, True, True])
+        self.assertTrue(all(e["multi_day"] and e["last_day"] == "2026-10-16" for e in trip))
         self.assertFalse(any(e["start_at"].startswith("2026-10-17") for e in trip))
         ongoing = self.events(selected=date(2026, 10, 15))
         self.assertTrue(next(e for e in ongoing if e["uid"] == "trip@fixture.invalid")["continuation"])
@@ -78,6 +79,7 @@ class CalendarTests(unittest.TestCase):
         events = [e for e in self.events() if e["uid"] == "midnight@fixture.invalid"]
         self.assertEqual(len(events), 2)
         self.assertTrue(events[1]["continuation"])
+        self.assertEqual(events[1]["last_day"], "2026-10-16")
         self.assertTrue(events[1]["start_at"].startswith("2026-10-16T00:00"))
 
     def test_spring_dst(self):

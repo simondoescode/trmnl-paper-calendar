@@ -10,7 +10,7 @@ The installed [trmnlp Context](https://github.com/usetrmnl/trmnlp/blob/main/lib/
 
 ## Context contract
 
-`source_1` contains one merged calendar with `name`, `ordered: true` and `events`. Each event has `summary`, `location`, `calendar_name`, `start_at`, `end_at`, `original_start_at`, `all_day`, `continuation` and `uid`. Dates are ISO 8601 London timestamps with offsets. The ordered flag preserves sorting by actual instant across repeated DST hours. Production sources without the flag retain existing per-calendar Liquid sorting.
+`source_1` contains one merged calendar with `name`, `ordered: true` and `events`. Each event has `summary`, `location`, `calendar_name`, `start_at`, `end_at`, `original_start_at`, `all_day`, `continuation`, `multi_day`, `last_day` and `uid`. Timestamps are ISO 8601 London timestamps with offsets; `last_day` is the last occupied local date, accounting for exclusive DTEND. The ordered flag preserves sorting by actual instant across repeated DST hours. Production sources without the flag retain existing per-calendar Liquid sorting.
 
 `preview_now`, `preview_week_end` and `preview_updated` are optional ISO timestamps. Without them, the template uses its existing render clock. The local calendar range ends at next Monday midnight, exclusively, using civil London dates. All-day DTEND is exclusive. Events crossing midnight create continuation segments at local midnight, retaining original start/end. Floating ICS times use Europe/London. Cancelled occurrences are excluded. Titles and locations have whitespace collapsed and are bounded to 300 characters; Liquid escapes them.
 

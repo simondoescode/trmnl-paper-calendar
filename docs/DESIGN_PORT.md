@@ -18,6 +18,8 @@ Readability refinements retain the canvas and card heights: narrower centred tim
 
 Lists display at most four Today cards and three upcoming cards. Additional matching events show `+N more`; the footer counts all Today events. On overflowing days, timed cards compact to 66 px with 8 px gaps to leave room for the indicator above the footer. All-day cards remain 48 px.
 
+Normalized multi-day cards keep their title intact and show a separate `Until Friday` label on the start day, `Continues · Until Friday` on intermediate days and `Continues` on the last day. This applies to both Today and the sidebar, including overnight timed events. Exclusive all-day end dates are converted to the last occupied date, so an event ending Saturday midnight is labelled Until Friday. Native data without this optional metadata retains its existing display.
+
 ## What is not identical yet
 
 The C++ firmware has true native all-day flags, weather data and battery/Wi-Fi hardware state. Terminus's **native ICS parser does not expose a reliable normalized all-day flag** in its current event hashes; default ICS entries therefore render as timed entries, including midnight all-day dates. The all-day styling activates only if a future normalizer provides `all_day: true`.
