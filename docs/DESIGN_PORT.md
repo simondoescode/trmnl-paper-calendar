@@ -12,6 +12,8 @@ Reference implementation: [original ESP32 renderer](https://github.com/simondoes
 - Footer with today count, last-rendered time, connection label and optional battery reading.
 - Original Manrope-like typography, with local/system fallbacks; no font files are copied or redistributed.
 
+The Liquid palette uses exactly four shades: black (`#000`), dark grey (`#555`) for Today card outlines, light grey (`#aaa`) for all-day cards and the sidebar, and white (`#fff`) for timed cards and the main panel. These shades survive the local preview's four-level quantization; the previous `#dedede` backgrounds mapped to white.
+
 ## What is not identical yet
 
 The C++ firmware has true native all-day flags, weather data and battery/Wi-Fi hardware state. Terminus's **native ICS parser does not expose a reliable normalized all-day flag** in its current event hashes; default ICS entries therefore render as timed entries, including midnight all-day dates. The all-day styling activates only if a future normalizer provides `all_day: true`.

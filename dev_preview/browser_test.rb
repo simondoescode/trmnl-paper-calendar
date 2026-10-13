@@ -44,7 +44,7 @@ begin
   assert(driver.find_elements(css: '.pc-forecast-icon svg').length == 3, 'Forecast icons missing')
   sizes = driver.execute_script('return [document.querySelector(".pc").getBoundingClientRect().width, document.querySelector(".pc").getBoundingClientRect().height, window.innerWidth, window.innerHeight]')
   assert(sizes == [800, 480, 800, 480], "Wrong canvas: #{sizes}")
-  assert(driver.execute_script('return getComputedStyle(document.querySelector(".pc-all-day")).backgroundColor') == 'rgb(222, 222, 222)', 'All-day grey styling failed')
+  assert(driver.execute_script('return getComputedStyle(document.querySelector(".pc-all-day")).backgroundColor') == 'rgb(170, 170, 170)', 'All-day grey styling failed')
   assert(driver.execute_script('return getComputedStyle(document.querySelector(".pc-event-inner")).justifyContent') == 'center', 'Event centring failed')
   # All browser subresources must be local, including fonts.
   resources = driver.execute_script('return performance.getEntriesByType("resource").map(e => e.name)')
