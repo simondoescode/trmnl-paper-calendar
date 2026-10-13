@@ -47,4 +47,10 @@ jobs:
       - name: Publish tagged release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${GITHUB_REF_NAME}" dist/paper-calendar.zip --verify-tag --generate-notes --title "Paper Calendar ${GITHUB_REF_NAME}"
+        run: |
+          notes_file="docs/releases/${GITHUB_REF_NAME}.md"
+          if [[ -f "$notes_file" ]]; then
+            gh release create "${GITHUB_REF_NAME}" dist/paper-calendar.zip --verify-tag --notes-file "$notes_file" --title "Paper Calendar ${GITHUB_REF_NAME}"
+          else
+            gh release create "${GITHUB_REF_NAME}" dist/paper-calendar.zip --verify-tag --generate-notes --title "Paper Calendar ${GITHUB_REF_NAME}"
+          fi
