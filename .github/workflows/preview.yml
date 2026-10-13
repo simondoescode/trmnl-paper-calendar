@@ -1,0 +1,30 @@
+name: Local preview
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  offline-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and start preview
+        run: docker compose up --build -d --wait
+      - name: Offline unit tests
+        run: docker compose run --rm --no-deps preview python -m unittest -v
+      - name: TRMNL lint
+        run: docker compose run --rm trmnlp lint
+      - name: Native Firefox integration and screenshots
+        run: docker compose exec renderer ruby /plugin/dev_preview/browser_test.rb
+      - name: Collect screenshots
+        if: always()
+        run: docker compose cp renderer:/tmp/screenshots ./preview-screenshots
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mock-preview-screenshots
+          path: preview-screenshots
+      - name: Logs and shutdown
+        if: always()
+        run: |
+          docker compose logs
+          docker compose down

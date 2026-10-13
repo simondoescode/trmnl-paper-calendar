@@ -1,10 +1,12 @@
 {
   "name": "TRMNL Paper Calendar",
-  "image": "trmnl/trmnlp",
+  "dockerComposeFile": ["../compose.yaml", "compose.devcontainer.yaml"],
+  "service": "renderer",
+  "runServices": ["renderer", "preview"],
   "workspaceFolder": "/plugin",
-  "workspaceMount": "source=${localWorkspaceFolder},target=/plugin,type=bind",
-  "forwardPorts": [4567],
-  "postStartCommand": "trmnlp serve --bind 0.0.0.0 > /tmp/trmnlp.log 2>&1 &",
+  "overrideCommand": false,
+  "shutdownAction": "stopCompose",
+  "forwardPorts": ["preview:8080"],
   "customizations": {
     "vscode": {
       "extensions": [

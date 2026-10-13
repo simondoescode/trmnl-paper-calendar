@@ -1,17 +1,13 @@
 ---
-name: Paper Calendar
 strategy: static
-refresh_interval: 720
+framework_version: 3.2.0
+name: Paper Calendar
 no_screen_padding: 'no'
 dark_mode: 'no'
-static_data: '{"today":[{"title":"Welcome to Paper Calendar","time":"All day","all_day":true},{"title":"Connect your calendar feed","time":"09:00","all_day":false}],"week":[{"day":"Monday","title":"Your next event"},{"day":"Tuesday","title":"Family plans"},{"day":"Friday","title":"Weekend ahead"}],"updated":"Demo data"}'
+refresh_interval: 60
 custom_fields:
-  - keyname: week_start
-    name: Week starts on
-    field_type: select
-    options:
-      - Monday
-      - Sunday
-  - keyname: title
-    name: Screen title
-    field_type: string
+  - keyname: author_bio
+    name: About this plugin
+    field_type: author_bio
+    description: Paper Calendar by Simon
+    github_url: https://github.com/simondoescode/trmnl-paper-calendar

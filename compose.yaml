@@ -1,7 +1,34 @@
 services:
+  preview:
+    build: ./dev_preview
+    ports:
+      - "127.0.0.1:8080:8080"
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - ./dev_preview:/app:ro
+      - .:/config:ro
+    depends_on:
+      renderer:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
+  renderer:
+    build: ./dev_preview/renderer
+    environment:
+      TZ: Europe/London
+    volumes:
+      - .:/plugin:ro
+    healthcheck:
+      test: ["CMD", "ruby", "-rnet/http", "-e", "exit(Net::HTTP.get_response(URI('http://127.0.0.1:4567/health')).code == '200' ? 0 : 1)"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
   trmnlp:
-    image: trmnl/trmnlp
-    pull_policy: always
+    image: trmnl/trmnlp@sha256:e5b0505fdbefd86a305b1eea207bde086494f7753c43271680f9d2de966e5d61
+    profiles: [tools]
     command: ["serve", "--bind", "0.0.0.0"]
     ports:
       - "127.0.0.1:4567:4567"
