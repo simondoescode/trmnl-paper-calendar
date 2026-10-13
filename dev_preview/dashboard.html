@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en-GB"><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>Paper Calendar development preview</title>
+<style>
+body{font:15px system-ui;margin:24px;background:#eee;color:#111}label,button{margin:6px;display:inline-block}select,input,button{font:inherit;padding:6px}#panel{width:100%;overflow:auto}#stage{width:800px;height:480px;transform-origin:top left}iframe{width:800px;height:480px;border:0;background:white}pre{white-space:pre-wrap}#fit{vertical-align:middle}
+</style>
+<h1>Paper Calendar</h1>
+<form id="controls">
+<label>Calendars <select id="calendar_mode"><option>mock</option><option>live</option></select></label>
+<label>Weather <select id="weather_mode"><option>mock</option><option>live</option><option>disabled</option></select></label>
+<label>Preview date <input type="date" id="selected_date" value="2026-10-13" required></label>
+<label>Scenario <select id="scenario"><option value="family">Family and work</option><option value="empty">Empty calendars</option><option value="spring-dst">Spring DST (29 March 2026)</option><option value="autumn-dst">Autumn DST (25 October 2026)</option></select></label>
+<button>Refresh data</button><button type="button" id="reload">Reload preview</button>
+</form>
+<label><input id="fit" type="checkbox" checked>Scale to fit</label>
+<label><input id="grey" type="checkbox">Four-shade simulation</label>
+<div id="panel"><div id="stage"><iframe id="screen" title="800 by 480 native TRMNL Liquid preview" sandbox="allow-same-origin"></iframe></div></div>
+<h2>Diagnostics</h2><pre id="diagnostics" aria-live="polite">Loading…</pre>
+<p>Data stays in memory. Live forecast dates follow the API clock. Mock fixtures use fixed dates; choose a matching date or DST scenario.</p>
+<script>
+const $=id=>document.getElementById(id);
+function scale(){const ratio=$('fit').checked?Math.min(1,$('panel').clientWidth/800):1;$('stage').style.transform=`scale(${ratio})`;$('panel').style.height=`${480*ratio}px`;}
+function reload(){$('screen').src='/preview?reload='+Date.now();}
+async function refresh(event){if(event)event.preventDefault();const payload={};for(const key of ['calendar_mode','weather_mode','selected_date','scenario'])payload[key]=$(key).value;try{const response=await fetch('/api/refresh',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const result=await response.json();$('diagnostics').textContent=JSON.stringify(result,null,2);if(response.ok)reload();}catch(error){$('diagnostics').textContent='Preview service unavailable';}}
+$('controls').onsubmit=refresh;$('reload').onclick=reload;$('fit').onchange=scale;window.onresize=scale;
+$('scenario').onchange=()=>{if($('scenario').value==='spring-dst')$('selected_date').value='2026-03-29';if($('scenario').value==='autumn-dst')$('selected_date').value='2026-10-25';refresh();};
+for(const key of ['calendar_mode','weather_mode','selected_date'])$(key).onchange=refresh;
+$('grey').onchange=()=>{$('screen').style.filter=$('grey').checked?'grayscale(1) url(#four-shades)':'none';};
+scale();refresh();
+</script>
+<svg width="0" height="0" aria-hidden="true"><filter id="four-shades" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="discrete" tableValues="0 .333 .667 1"/><feFuncG type="discrete" tableValues="0 .333 .667 1"/><feFuncB type="discrete" tableValues="0 .333 .667 1"/></feComponentTransfer></filter></svg>
+</html>

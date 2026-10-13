@@ -4,4 +4,12 @@ watch:
   - src
 
 custom_fields: {}
-framework_version: latest
+time_zone: Europe/London
+variables:
+  trmnl:
+    user:
+      locale: en-GB
+# This plugin only supports full-screen. Preserve its Terminus screen wrappers.
+ignored_lint_rules:
+  - layouts_have_content
+  - limited_inline_styles

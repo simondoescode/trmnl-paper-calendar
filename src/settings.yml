@@ -1,6 +1,13 @@
 ---
 strategy: static
+framework_version: 3.2.0
 name: Paper Calendar
 no_screen_padding: 'no'
 dark_mode: 'no'
 refresh_interval: 60
+custom_fields:
+  - keyname: author_bio
+    name: About this plugin
+    field_type: author_bio
+    description: Paper Calendar by Simon
+    github_url: https://github.com/simondoescode/trmnl-paper-calendar

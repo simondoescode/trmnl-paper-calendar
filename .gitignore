@@ -9,3 +9,9 @@
 build/
 dist/
 tmp/
+calendars.local.json
+__pycache__/
+*.pyc
+.pytest_cache/
+.trmnlp/
+dev_preview/artifacts/

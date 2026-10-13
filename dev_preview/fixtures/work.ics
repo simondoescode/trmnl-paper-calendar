@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Paper Calendar//Offline Fixtures//EN
+BEGIN:VEVENT
+UID:overlap@fixture.invalid
+DTSTART:20261013T090000Z
+DTEND:20261013T100000Z
+SUMMARY:Project planning with a deliberately long title to exercise ellipsis in the compact event card
+LOCATION:Meeting room 2
+END:VEVENT
+BEGIN:VEVENT
+UID:review@fixture.invalid
+DTSTART;TZID=Europe/London:20261014T110000
+DTEND;TZID=Europe/London:20261014T113000
+SUMMARY:Design review
+END:VEVENT
+END:VCALENDAR

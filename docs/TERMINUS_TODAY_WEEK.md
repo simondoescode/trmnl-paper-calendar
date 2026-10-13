@@ -21,8 +21,8 @@ https://raw.githubusercontent.com/simondoescode/trmnl-paper-calendar/main/spikes
 
 ## Current template behavior
 
-- Left: Today (up to five timed event cards).
-- Right: upcoming events in the next seven days (up to six), excluding today.
+- Left: Today (up to four cards, with compact grey cards when normalized all-day flags are supplied).
+- Right: Later this week (up to three cards), excluding today, with optional three-day weather.
 - Light-grey sidebar, white main panel, four greyscale-safe shades, black text and a last-updated footer.
 - Escapes event titles to prevent HTML injection.
 - Processes the first three Terminus Exchange sources without an additional application service.
@@ -33,8 +33,8 @@ https://raw.githubusercontent.com/simondoescode/trmnl-paper-calendar/main/spikes
 2. Dates are derived from Liquid's server timezone; set Terminus to **Europe/London** for correct local dates. DST boundaries must be verified.
 3. Per-source events are sorted by start date, but **multiple feeds are not globally sorted**. Liquid alone is inadequate for correct multi-source ordering.
 4. The ICS-to-hash representation loses an explicit all-day indicator in some cases. Accordingly the template does **not** claim to classify all-day events; midnight events may appear as `00:00`.
-5. The right-hand panel uses a rolling seven-day range rather than a strict Monday–Sunday calendar week.
-6. Footer time reflects render time, not actual source refresh time.
+5. Production week-boundary arithmetic uses fixed 86,400-second days and excludes Sunday from Monday–Saturday previews; it has not been verified at DST boundaries. The development adapter supplies next Monday's London midnight as an explicit exclusive boundary.
+6. Native footer time reflects render time, not actual source refresh time. Local mock previews use a deterministic footer clock; their dashboard reports actual refresh time.
 7. This is a paste-into-Terminus template until native export/import packaging has been validated. The separate static `trmnlp` settings file does not configure the Terminus Exchanges.
 
 For a production-ready public release, normalize event feeds on the Terminus side: RFC 5545 recurrence expansion, all-day preservation, Europe/London conversion, cross-feed sorting and filtering. Add integration tests before release.
