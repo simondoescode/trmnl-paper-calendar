@@ -3,16 +3,33 @@
   Terminus Poll exchanges: source_1 through source_3 are parsed text/calendar arrays.
   No secrets in the template. RRULEs are retained but not expanded by Terminus.
 {% endcomment %}
-{% assign pc_today = 'now' | date: '%Y-%m-%d' %}
+{% assign pc_now = preview_now | default: 'now' %}
+{% assign pc_updated = preview_updated | default: 'now' %}
+{% assign pc_today = pc_now | date: '%Y-%m-%d' %}
 {% assign pc_today_epoch = pc_today | date: '%s' | plus: 0 %}
-{% assign pc_weekday = 'now' | date: '%w' | plus: 0 %}
+{% assign pc_weekday = pc_now | date: '%w' | plus: 0 %}
 {% assign pc_days_to_sunday = 7 | minus: pc_weekday %}
 {% assign pc_week_offset = pc_days_to_sunday | times: 86400 %}
 {% assign pc_week_end = pc_today_epoch | plus: pc_week_offset %}
+{% if preview_week_end %}{% assign pc_week_end = preview_week_end | date: '%s' | plus: 0 %}{% endif %}
 {% assign pc_sources = source_1 %}
-{% unless pc_sources %}{% assign pc_sources = source_2 %}{% endunless %}
-{% if source_2 %}{% assign pc_sources = pc_sources | concat: source_2 %}{% endif %}
-{% if source_3 %}{% assign pc_sources = pc_sources | concat: source_3 %}{% endif %}
+{% if source_2 %}{% if pc_sources %}{% assign pc_sources = pc_sources | concat: source_2 %}{% else %}{% assign pc_sources = source_2 %}{% endif %}{% endif %}
+{% if source_3 %}{% if pc_sources %}{% assign pc_sources = pc_sources | concat: source_3 %}{% else %}{% assign pc_sources = source_3 %}{% endif %}{% endif %}
+{% assign pc_weather_icon = 'cloud' %}
+{% if weather and weather.current %}
+  {% assign pc_weather_current = weather.current.description | default: '' | downcase | strip | replace: '-', ' ' %}
+  {% case pc_weather_current %}
+    {% when 'clear', 'sunny', 'fair' %}{% assign pc_weather_icon = 'sun' %}
+    {% when 'partly cloudy', 'partly sunny', 'mostly sunny', 'mostly clear', 'scattered clouds' %}{% assign pc_weather_icon = 'sun-cloud' %}
+    {% when 'overcast', 'cloudy', 'grey', 'gray', 'broken clouds', 'clouds' %}{% assign pc_weather_icon = 'cloud' %}
+    {% when 'light rain', 'rain', 'showers', 'drizzle', 'rain showers', 'moderate rain', 'heavy rain' %}{% assign pc_weather_icon = 'rain' %}
+    {% when 'thunderstorm', 'storm', 'thunder', 'stormy' %}{% assign pc_weather_icon = 'storm' %}
+    {% when 'snow', 'sleet', 'blizzard', 'light snow', 'heavy snow' %}{% assign pc_weather_icon = 'snow' %}
+    {% when 'mist', 'fog', 'haze', 'smoke', 'dust' %}{% assign pc_weather_icon = 'fog' %}
+    {% when 'windy', 'wind', 'breezy' %}{% assign pc_weather_icon = 'wind' %}
+    {% when 'clear night', 'night', 'moonlit' %}{% assign pc_weather_icon = 'moon' %}
+  {% endcase %}
+{% endif %}
 
 <style>
 /* Rebuilt from the original C++ 800x480 layout, in four fixed e-ink shades. */
@@ -23,18 +40,22 @@
 .pc-date {font-size:14px;font-weight:700;line-height:19px}
 .pc-day {font-size:39px;letter-spacing:-1.3px;font-weight:800;line-height:48px;margin-top:3px}
 .pc-weather {position:absolute;right:16px;top:20px;width:147px;text-align:right;line-height:1.25}
-.pc-weather-top {font-size:25px;font-weight:800}
+.pc-weather-topline {display:flex;align-items:center;justify-content:flex-end;gap:8px}
+.pc-weather-icon {width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex:none}
+.pc-weather-icon svg,.pc-forecast-icon svg {width:100%;height:100%;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pc-forecast-icon svg {stroke:#000}
+.pc-weather-temp {font-size:25px;font-weight:800;line-height:1}
 .pc-weather-condition {font-size:12px;margin-top:7px}
 .pc-weather-range {font-size:10px;margin-top:7px}
 .pc-today-events {height:336px;padding:16px 16px 8px}
-.pc-event {height:72px;margin-bottom:10px;border:1px solid #aaa;border-radius:10px;display:flex;align-items:center;overflow:hidden;background:#fff;color:#000}
-.pc-event.pc-all-day {height:48px;background:#dedede}
+.pc-event {height:72px;margin-bottom:10px;border:1px solid #555;border-radius:10px;display:flex;align-items:center;overflow:hidden;background:#fff;color:#000}
+.pc-event.pc-all-day {height:48px;background:#aaa}
 .pc-time {width:106px;flex:none;align-self:stretch;display:flex;align-items:center;justify-content:flex-start;padding-left:12px;font-weight:800;font-size:13px;border-right:1px solid #000}
 .pc-event-inner {min-width:0;flex:1;padding:0 14px;display:flex;flex-direction:column;justify-content:center;height:100%;gap:5px}
 .pc-event-title {font-size:19px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15}
 .pc-event-detail {font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pc-empty {font-size:17px;font-weight:650;padding:18px 6px}
-.pc-aside {position:absolute;top:0;right:0;width:313px;height:448px;background:#dedede;padding:16px 16px 8px}
+.pc-aside {position:absolute;top:0;right:0;width:313px;height:448px;background:#aaa;padding:16px 16px 8px}
 .pc-aside-title {font-size:24px;letter-spacing:-.6px;font-weight:800;line-height:30px;margin:0 0 8px}
 .pc-forecast {height:82px;display:flex;gap:6px;justify-content:space-between}
 .pc-forecast-day {flex:1;min-width:0;text-align:center}
@@ -54,11 +75,37 @@
     <div class="pc">
       <main class="pc-main">
         <header class="pc-head">
-          <div class="pc-date">{{ 'now' | date: '%-d %B' }}</div>
-          <div class="pc-day">{{ 'now' | date: '%A' }}</div>
+          <div class="pc-date">{{ pc_now | date: '%-d %B' }}</div>
+          <div class="pc-day">{{ pc_now | date: '%A' }}</div>
           <div class="pc-weather">
             {% if weather and weather.current %}
-              <div class="pc-weather-top">{{ weather.current.temperature }}°</div>
+              <div class="pc-weather-topline">
+                <div class="pc-weather-icon">
+                  {% case pc_weather_icon %}
+                    {% when 'sun' %}
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"></circle><path d="M12 2v2.5M12 19.5V22M4.93 4.93l1.77 1.77M17.3 17.3l1.77 1.77M2 12h2.5M19.5 12H22M4.93 19.07l1.77-1.77M17.3 6.7l1.77-1.77"></path></svg>
+                    {% when 'sun-cloud' %}
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="14.5" cy="8.5" r="3.7"></circle><path d="M5 16.5a3.5 3.5 0 0 1 0-7 4.7 4.7 0 0 1 8.8-1.9A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path><path d="M13.5 8.5h3.2"></path></svg>
+                    {% when 'cloud' %}
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path></svg>
+                    {% when 'rain' %}
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path><path d="M8 18.5v1.5M12 18.5v1.5M16 18.5v1.5"></path></svg>
+                    {% when 'storm' %}
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path><path d="m12 18 2.2-5H10l2.2-5 3.1 4.2H13l1.7 5.8Z"></path></svg>
+                    {% when 'snow' %}
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path><path d="M12 18v1.5M12 14.5v1.5M10 16.5h4M10.5 14l3 6M13.5 14l-3 6"></path></svg>
+                    {% when 'fog' %}
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path><path d="M7.5 18h9M7 20h12M9 16.5h9"></path></svg>
+                    {% when 'wind' %}
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h11.5a2.5 2.5 0 1 1 0 5H15M4 6h15.5M4 13h9.5a2.5 2.5 0 0 0 0-5H9"></path></svg>
+                    {% when 'moon' %}
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A7.5 7.5 0 0 1 9.5 4a7.5 7.5 0 1 0 10.5 10.5Z"></path></svg>
+                    {% else %}
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path></svg>
+                  {% endcase %}
+                </div>
+                <div class="pc-weather-temp">{{ weather.current.temperature }}°</div>
+              </div>
               <div class="pc-weather-condition">{{ weather.current.description | escape }}</div>
               <div class="pc-weather-range">{{ weather.current.range | escape }}</div>
             {% else %}
@@ -83,13 +130,14 @@
           {% endfor %}
           {% for calendar in pc_sources %}
             {% assign pc_ordered = calendar.events | sort: 'start_at' %}
+            {% if calendar.ordered %}{% assign pc_ordered = calendar.events %}{% endif %}
             {% for event in pc_ordered %}
               {% assign pc_date = event.start_at | date: '%Y-%m-%d' %}
               {% if pc_date == pc_today and event.all_day != true and pc_today_count < 4 %}
                 <div class="pc-event">
                   <div class="pc-time">{{ event.start_at | date: '%H:%M' }}</div>
                   <div class="pc-event-inner">
-                    <div class="pc-event-title">{{ event.summary | default: 'Untitled' | escape }}</div>
+                    <div class="pc-event-title">{% if event.continuation %}Continues: {% endif %}{{ event.summary | default: 'Untitled' | escape }}</div>
                     {% if event.location != empty %}<div class="pc-event-detail">{{ event.location | escape }}</div>{% endif %}
                   </div>
                 </div>
@@ -106,9 +154,23 @@
         <div class="pc-forecast">
           {% if weather and weather.forecast %}
             {% for day in weather.forecast limit: 3 %}
+              {% assign pc_forecast_key = day.symbol | default: 'cloud' | downcase | strip | replace: '☀', 'sun' | replace: '☁', 'cloud' | replace: '☂', 'rain' | replace: '☔', 'rain' | replace: '☇', 'rain' | replace: '⚡', 'storm' | replace: '❄', 'snow' | replace: '☼', 'sun' | replace: '☾', 'moon' %}
               <div class="pc-forecast-day">
                 <div class="pc-forecast-name">{{ day.day | escape }}</div>
-                <div class="pc-forecast-icon">{{ day.symbol | default: '·' | escape }}</div>
+                <div class="pc-forecast-icon">
+                  {% case pc_forecast_key %}
+                    {% when 'sun', 'clear', 'sunny' %}<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"></circle><path d="M12 2v2.5M12 19.5V22M4.93 4.93l1.77 1.77M17.3 17.3l1.77 1.77M2 12h2.5M19.5 12H22M4.93 19.07l1.77-1.77M17.3 6.7l1.77-1.77"></path></svg>
+                    {% when 'sun-cloud', 'partly cloudy', 'partly sunny', 'mostly sunny', 'mostly clear', 'sun cloud' %}<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="14.5" cy="8.5" r="3.7"></circle><path d="M5 16.5a3.5 3.5 0 0 1 0-7 4.7 4.7 0 0 1 8.8-1.9A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path><path d="M13.5 8.5h3.2"></path></svg>
+                    {% when 'cloud', 'overcast', 'cloudy', 'grey', 'gray' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path></svg>
+                    {% when 'rain', 'showers', 'drizzle', 'rain showers', 'light rain', 'moderate rain', 'heavy rain' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path><path d="M8 18.5v1.5M12 18.5v1.5M16 18.5v1.5"></path></svg>
+                    {% when 'storm', 'thunderstorm', 'thunder' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path><path d="m12 18 2.2-5H10l2.2-5 3.1 4.2H13l1.7 5.8Z"></path></svg>
+                    {% when 'snow', 'sleet', 'blizzard' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path><path d="M12 18v1.5M12 14.5v1.5M10 16.5h4M10.5 14l3 6M13.5 14l-3 6"></path></svg>
+                    {% when 'mist', 'fog', 'haze', 'smoke', 'dust' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path><path d="M7.5 18h9M7 20h12M9 16.5h9"></path></svg>
+                    {% when 'wind', 'windy', 'breezy' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h11.5a2.5 2.5 0 1 1 0 5H15M4 6h15.5M4 13h9.5a2.5 2.5 0 0 0 0-5H9"></path></svg>
+                    {% when 'moon', 'moonlit', 'clear night' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A7.5 7.5 0 0 1 9.5 4a7.5 7.5 0 1 0 10.5 10.5Z"></path></svg>
+                    {% else %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16.5a3.5 3.5 0 0 1 0-7 4.8 4.8 0 0 1 9-1.8A3.9 3.9 0 0 1 18 13.5a3.5 3.5 0 0 1 0 7H5Z"></path></svg>
+                  {% endcase %}
+                </div>
               </div>
             {% endfor %}
           {% else %}
@@ -118,6 +180,7 @@
         {% assign pc_later_count = 0 %}
         {% for calendar in pc_sources %}
           {% assign pc_ordered = calendar.events | sort: 'start_at' %}
+          {% if calendar.ordered %}{% assign pc_ordered = calendar.events %}{% endif %}
           {% for event in pc_ordered %}
             {% assign pc_event_epoch = event.start_at | date: '%s' | plus: 0 %}
             {% if pc_event_epoch >= pc_today_epoch and pc_event_epoch < pc_week_end %}
@@ -139,7 +202,7 @@
         <div class="pc-footer-left">
           <span>▣ {{ pc_today_count }} events today</span>
           <span class="pc-dot"></span>
-          <span>Last updated: {{ 'now' | date: '%H:%M' }}</span>
+          <span>Last updated: {{ pc_updated | date: '%H:%M' }}</span>
         </div>
         <div class="pc-footer-right">
           <span class="pc-status">◉ {% if connection_label %}{{ connection_label | escape }}{% else %}Terminus{% endif %}</span>

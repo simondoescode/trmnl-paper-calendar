@@ -12,13 +12,15 @@ Reference implementation: [original ESP32 renderer](https://github.com/simondoes
 - Footer with today count, last-rendered time, connection label and optional battery reading.
 - Original Manrope-like typography, with local/system fallbacks; no font files are copied or redistributed.
 
+The Liquid palette uses exactly four shades: black (`#000`), dark grey (`#555`) for Today card outlines, light grey (`#aaa`) for all-day cards and the sidebar, and white (`#fff`) for timed cards and the main panel. These shades survive the local preview's four-level quantization; the previous `#dedede` backgrounds mapped to white.
+
 ## What is not identical yet
 
 The C++ firmware has true native all-day flags, weather data and battery/Wi-Fi hardware state. Terminus's **native ICS parser does not expose a reliable normalized all-day flag** in its current event hashes; default ICS entries therefore render as timed entries, including midnight all-day dates. The all-day styling activates only if a future normalizer provides `all_day: true`.
 
 Weather is only shown when a structured `weather` object is supplied to the Liquid context. A blank forecast placeholder is shown otherwise. Similarly, Wi-Fi and battery information are optional server context; the default footer says Terminus and Battery —.
 
-The template reads at most three native ICS exchanges (`source_1`, `source_2`, `source_3`). Recurring appointments are NOT expanded, and events are sorted within each calendar, not globally across calendars. Date filters run in the server's Liquid timezone; confirm Europe/London if you want correct UK clock times, especially around DST transitions.
+The template reads at most three native ICS exchanges (`source_1`, `source_2`, `source_3`). Raw native exchanges do not expand recurring appointments and sort events within each calendar rather than globally. Date filters run in the server's Liquid timezone; confirm Europe/London for UK clock times, especially around DST transitions. The independent [local preview adapter](LOCAL_PREVIEW.md) supplies expanded, globally ordered day segments, explicit all-day flags and weather for development. These enhancements do not demonstrate native Terminus feature parity.
 
 ## Testing in Terminus
 

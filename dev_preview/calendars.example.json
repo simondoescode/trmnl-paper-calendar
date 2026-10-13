@@ -1,0 +1,6 @@
+{
+  "calendars": [
+    {"name": "Family", "url_env": "FAMILY_CALENDAR_URL", "enabled": true},
+    {"name": "Work", "url_env": "WORK_CALENDAR_URL", "enabled": true}
+  ]
+}
