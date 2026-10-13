@@ -20,6 +20,8 @@ Lists display at most four Today cards and three upcoming cards. Additional matc
 
 Normalized multi-day cards keep their title intact and show a separate `Until Friday` label on the start day, `Continues · Until Friday` on intermediate days and `Continues` on the last day. This applies to both Today and the sidebar, including overnight timed events. Exclusive all-day end dates are converted to the last occupied date, so an event ending Saturday midnight is labelled Until Friday. Native data without this optional metadata retains its existing display.
 
+When Today is empty, a vertically centred inspirational quote appears beneath a small No events today label. Seven original, unattributed messages are selected by the displayed day of the year, keeping refreshes stable and working offline in both the preview and production template. Upcoming events remain visible in the sidebar.
+
 ## What is not identical yet
 
 The C++ firmware has true native all-day flags, weather data and battery/Wi-Fi hardware state. Terminus's **native ICS parser does not expose a reliable normalized all-day flag** in its current event hashes; default ICS entries therefore render as timed entries, including midnight all-day dates. The all-day styling activates only if a future normalizer provides `all_day: true`.

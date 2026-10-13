@@ -160,6 +160,9 @@ END MANROPE LICENCE{% endcomment %}
 .pc-event-label {font-size:11px;font-weight:700;color:#555;line-height:14px;white-space:nowrap}
 .pc-event-detail {font-size:11px;font-weight:600;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
 .pc-empty {font-size:17px;font-weight:650;padding:18px 6px}
+.pc-quiet-day {height:100%;display:flex;flex-direction:column;justify-content:center;padding:0 20px 24px}
+.pc-quiet-label {font-size:12px;font-weight:750;color:#555;margin-bottom:16px}
+.pc-quote {margin:0;font-size:26px;font-weight:750;line-height:1.4;letter-spacing:-.4px}
 .pc-aside {position:absolute;top:0;right:0;width:313px;height:448px;background:#aaa;padding:16px 16px 8px}
 .pc-aside-title {font-size:22px;letter-spacing:-.5px;font-weight:800;line-height:30px;margin:0 0 8px}
 .pc-forecast {height:82px;display:flex;gap:6px;justify-content:space-between;border-bottom:1px solid #555;margin-bottom:8px}
@@ -274,7 +277,15 @@ END MANROPE LICENCE{% endcomment %}
               {% endif %}
             {% endfor %}
           {% endfor %}
-          {% if pc_today_count == 0 %}<div class="pc-empty">No events today</div>{% endif %}
+          {% if pc_today_count == 0 %}
+            {% comment %}Original, unattributed encouragement; deterministic and entirely offline.{% endcomment %}
+            {% assign pc_quotes = 'Small steps still move you forward.|Make room for something that matters to you.|A quiet day is a chance to begin again.|Give your best energy to what you can change.|Progress begins with one thoughtful action.|Leave a little space for curiosity today.|You do not need to do everything to do something worthwhile.' | split: '|' %}
+            {% assign pc_quote_index = pc_now | date: '%j' | plus: 0 | modulo: pc_quotes.size %}
+            <div class="pc-quiet-day">
+              <div class="pc-quiet-label">No events today</div>
+              <blockquote class="pc-quote">“{{ pc_quotes[pc_quote_index] | escape }}”</blockquote>
+            </div>
+          {% endif %}
           {% if pc_today_total > pc_today_count %}
             <div class="pc-more pc-today-more">+{{ pc_today_total | minus: pc_today_count }} more</div>
           {% endif %}

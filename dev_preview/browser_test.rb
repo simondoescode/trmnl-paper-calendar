@@ -116,7 +116,13 @@ begin
   assert(driver.find_elements(css: '.pc-event').length == 3, 'DST occurrences missing')
   refresh(scenario: 'empty', weather: 'disabled')
   driver.navigate.refresh
-  assert(driver.find_element(css: '.pc-empty').text == 'No events today', 'Empty state missing')
+  assert(driver.find_element(css: '.pc-quiet-label').text == 'No events today', 'Empty state missing')
+  quiet_quote = driver.find_element(css: '.pc-quote').text
+  assert(!quiet_quote.empty?, 'Quiet-day quote missing')
+  assert(driver.execute_script('return document.querySelector(".pc-quote").getBoundingClientRect().bottom < document.querySelector(".pc-footer").getBoundingClientRect().top'), 'Quiet-day quote overlaps footer')
+  driver.navigate.refresh
+  assert(driver.find_element(css: '.pc-quote').text == quiet_quote, 'Quote changed on same-date reload')
+  driver.save_screenshot("#{out}/quiet-day.png")
   assert(driver.find_element(css: '.pc-weather-condition').text == 'Weather unavailable', 'Disabled weather missing')
 
   # Exercise actual dashboard controls and its iframe, including simulation.
