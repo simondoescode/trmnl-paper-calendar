@@ -1,92 +1,151 @@
 {% comment %}
-  Terminus Poll exchange data: source_1, source_2, source_3.
-  Fetch and parse ICS with Terminus's own text/calendar handler.
-  Times are formatted by the server's Liquid date filter; for UK local
-  display configure the Terminus runtime timezone to Europe/London.
-  RRULE entries are NOT expanded by Terminus.
+  Faithful HTML/CSS adaptation of paper-calendar/src/calendar/calendar_renderer.cpp.
+  Terminus Poll exchanges: source_1 through source_3 are parsed text/calendar arrays.
+  No secrets in the template. RRULEs are retained but not expanded by Terminus.
 {% endcomment %}
-{% assign today_key = 'now' | date: '%Y-%m-%d' %}
-{% assign today_epoch = today_key | date: '%s' | plus: 0 %}
-{% assign week_end_epoch = today_epoch | plus: 604800 %}
-{% assign calendar_feeds = source_1 %}
-{% if source_2 %}
-  {% assign calendar_feeds = calendar_feeds | concat: source_2 %}
-{% endif %}
-{% if source_3 %}
-  {% assign calendar_feeds = calendar_feeds | concat: source_3 %}
-{% endif %}
+{% assign pc_today = 'now' | date: '%Y-%m-%d' %}
+{% assign pc_today_epoch = pc_today | date: '%s' | plus: 0 %}
+{% assign pc_weekday = 'now' | date: '%w' | plus: 0 %}
+{% assign pc_days_to_sunday = 7 | minus: pc_weekday %}
+{% assign pc_week_end = pc_today_epoch | plus: pc_days_to_sunday | times: 86400 %}
+{% assign pc_sources = source_1 %}
+{% unless pc_sources %}{% assign pc_sources = empty %}{% endunless %}
+{% if source_2 %}{% assign pc_sources = pc_sources | concat: source_2 %}{% endif %}
+{% if source_3 %}{% assign pc_sources = pc_sources | concat: source_3 %}{% endif %}
 
 <style>
-  /* 800×480 TRMNL OG, four e-paper-friendly greys: white, light, mid, black */
-  .pc-screen {width:800px;height:480px;box-sizing:border-box;background:#fff;color:#000;font-family:inherit;overflow:hidden}
-  .pc-columns {display:grid;grid-template-columns:62% 38%;height:440px}
-  .pc-today {background:#fff;padding:22px 20px 12px 24px;overflow:hidden}
-  .pc-week {background:#dedede;padding:22px 18px 12px;overflow:hidden;border-left:2px solid #aaa}
-  .pc-heading {margin:0 0 14px;font-size:24px;font-weight:800;letter-spacing:-.5px;line-height:1.1}
-  .pc-kicker {font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
-  .pc-event {background:#f0f0f0;border-radius:7px;padding:9px 12px;margin:0 0 8px;min-height:48px;box-sizing:border-box}
-  .pc-event-title {font-size:18px;line-height:1.25;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .pc-event-time {font-size:12px;color:#444;font-weight:650;margin-bottom:2px}
-  .pc-week-event {background:#fff;border-radius:6px;padding:8px 10px;margin-bottom:8px;min-height:46px;box-sizing:border-box}
-  .pc-week-day {font-size:11px;font-weight:800;color:#444;text-transform:uppercase}
-  .pc-week-title {font-size:15px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .pc-empty {font-size:17px;color:#444;margin-top:26px}
-  .pc-footer {height:40px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;background:#aaa;font-size:12px;font-weight:700}
+/* Rebuilt from the original C++ 800x480 layout, in four fixed e-ink shades. */
+.pc {position:relative;width:800px;height:480px;overflow:hidden;background:#fff;color:#000;font-family:Manrope,Inter,Arial,sans-serif;box-sizing:border-box}
+.pc * {box-sizing:border-box}
+.pc-main {position:absolute;left:0;top:0;width:487px;height:448px;background:#fff}
+.pc-head {height:112px;background:#000;color:#fff;padding:16px 20px;position:relative}
+.pc-date {font-size:14px;font-weight:700;line-height:19px}
+.pc-day {font-size:39px;letter-spacing:-1.3px;font-weight:800;line-height:48px;margin-top:3px}
+.pc-weather {position:absolute;right:16px;top:20px;width:147px;text-align:right;line-height:1.25}
+.pc-weather-top {font-size:25px;font-weight:800}
+.pc-weather-condition {font-size:12px;margin-top:7px}
+.pc-weather-range {font-size:10px;margin-top:7px}
+.pc-today-events {height:336px;padding:16px 16px 8px}
+.pc-event {height:72px;margin-bottom:10px;border:1px solid #aaa;border-radius:10px;display:flex;align-items:center;overflow:hidden;background:#fff;color:#000}
+.pc-event.pc-all-day {height:48px;background:#dedede}
+.pc-time {width:106px;flex:none;align-self:stretch;display:flex;align-items:center;justify-content:flex-start;padding-left:12px;font-weight:800;font-size:13px;border-right:1px solid #000}
+.pc-event-inner {min-width:0;flex:1;padding:0 14px;display:flex;flex-direction:column;justify-content:center;height:100%;gap:5px}
+.pc-event-title {font-size:19px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15}
+.pc-event-detail {font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-empty {font-size:17px;font-weight:650;padding:18px 6px}
+.pc-aside {position:absolute;top:0;right:0;width:313px;height:448px;background:#dedede;padding:16px 16px 8px}
+.pc-aside-title {font-size:24px;letter-spacing:-.6px;font-weight:800;line-height:30px;margin:0 0 8px}
+.pc-forecast {height:82px;display:flex;gap:6px;justify-content:space-between}
+.pc-forecast-day {flex:1;min-width:0;text-align:center}
+.pc-forecast-name {font-size:11px;font-weight:700}
+.pc-forecast-icon {height:38px;display:flex;align-items:center;justify-content:center;font-size:23px}
+.pc-week-card {height:52px;margin-bottom:8px;display:flex;border:1px solid #000;border-radius:10px;background:#fff;overflow:hidden;align-items:center}
+.pc-week-day {width:44px;flex:none;font-size:10px;font-weight:800;text-align:center;line-height:50px;border-right:1px solid #000}
+.pc-week-title {flex:1;min-width:0;padding:0 12px;font-size:12px;font-weight:750;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.pc-footer {position:absolute;left:0;right:0;bottom:0;height:32px;border-top:1px solid #000;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:#fff;font-size:10px;font-weight:700}
+.pc-footer-left,.pc-footer-right {display:flex;gap:12px;align-items:center;min-width:0}
+.pc-footer .pc-dot {width:3px;height:3px;background:#000;border-radius:50%;display:inline-block}
+.pc-status {overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:145px}
 </style>
 
-<div class="screen screen--og pc-screen">
-  <div class="view view--full" style="height:480px;display:block;overflow:hidden">
-    <div class="pc-columns">
-      <section class="pc-today">
-        <div class="pc-kicker">{{ 'now' | date: '%A %d %B' }}</div>
-        <h1 class="pc-heading">Today</h1>
-        {% assign today_count = 0 %}
-        {% for calendar in calendar_feeds %}
-          {% assign ordered_events = calendar.events | sort: 'start_at' %}
-          {% for event in ordered_events %}
-            {% assign event_day = event.start_at | date: '%Y-%m-%d' %}
-            {% if event_day == today_key and today_count < 5 %}
-              <div class="pc-event">
-                <div class="pc-event-time">{{ event.start_at | date: '%H:%M' }}</div>
-                <div class="pc-event-title">{{ event.summary | default: 'Untitled event' | escape }}</div>
-              </div>
-              {% assign today_count = today_count | plus: 1 %}
+<div class="screen screen--og" style="width:800px;height:480px;overflow:hidden">
+  <div class="view view--full" style="width:800px;height:480px;display:block;overflow:hidden">
+    <div class="pc">
+      <main class="pc-main">
+        <header class="pc-head">
+          <div class="pc-date">{{ 'now' | date: '%-d %B' }}</div>
+          <div class="pc-day">{{ 'now' | date: '%A' }}</div>
+          <div class="pc-weather">
+            {% if weather and weather.current %}
+              <div class="pc-weather-top">{{ weather.current.temperature }}°</div>
+              <div class="pc-weather-condition">{{ weather.current.description | escape }}</div>
+              <div class="pc-weather-range">{{ weather.current.range | escape }}</div>
+            {% else %}
+              <div class="pc-weather-condition">Weather unavailable</div>
             {% endif %}
-          {% endfor %}
-        {% endfor %}
-        {% if today_count == 0 %}
-          <div class="pc-empty">Nothing planned for today</div>
-        {% endif %}
-      </section>
-
-      <section class="pc-week">
-        <div class="pc-kicker">Coming up</div>
-        <h2 class="pc-heading">This Week</h2>
-        {% assign week_count = 0 %}
-        {% for calendar in calendar_feeds %}
-          {% assign ordered_events = calendar.events | sort: 'start_at' %}
-          {% for event in ordered_events %}
-            {% assign event_epoch = event.start_at | date: '%s' | plus: 0 %}
-            {% if event_epoch >= today_epoch and event_epoch < week_end_epoch %}
-              {% assign event_day = event.start_at | date: '%Y-%m-%d' %}
-              {% if event_day != today_key and week_count < 6 %}
-                <div class="pc-week-event">
-                  <div class="pc-week-day">{{ event.start_at | date: '%a %d %b' }}</div>
-                  <div class="pc-week-title">{{ event.summary | default: 'Untitled event' | escape }}</div>
+          </div>
+        </header>
+        <div class="pc-today-events">
+          {% assign pc_today_count = 0 %}
+          {% comment %}First pass: all-day tagged events from normalized sources.{% endcomment %}
+          {% for calendar in pc_sources %}
+            {% for event in calendar.events %}
+              {% assign pc_date = event.start_at | date: '%Y-%m-%d' %}
+              {% if pc_date == pc_today and event.all_day == true and pc_today_count < 4 %}
+                <div class="pc-event pc-all-day">
+                  <div class="pc-time">All day</div>
+                  <div class="pc-event-inner"><div class="pc-event-title">{{ event.summary | default: 'Untitled' | escape }}</div></div>
                 </div>
-                {% assign week_count = week_count | plus: 1 %}
+                {% assign pc_today_count = pc_today_count | plus: 1 %}
+              {% endif %}
+            {% endfor %}
+          {% endfor %}
+          {% for calendar in pc_sources %}
+            {% assign pc_ordered = calendar.events | sort: 'start_at' %}
+            {% for event in pc_ordered %}
+              {% assign pc_date = event.start_at | date: '%Y-%m-%d' %}
+              {% if pc_date == pc_today and event.all_day != true and pc_today_count < 4 %}
+                <div class="pc-event">
+                  <div class="pc-time">{{ event.start_at | date: '%H:%M' }}</div>
+                  <div class="pc-event-inner">
+                    <div class="pc-event-title">{{ event.summary | default: 'Untitled' | escape }}</div>
+                    {% if event.location != empty %}<div class="pc-event-detail">{{ event.location | escape }}</div>{% endif %}
+                  </div>
+                </div>
+                {% assign pc_today_count = pc_today_count | plus: 1 %}
+              {% endif %}
+            {% endfor %}
+          {% endfor %}
+          {% if pc_today_count == 0 %}<div class="pc-empty">No events today</div>{% endif %}
+        </div>
+      </main>
+
+      <aside class="pc-aside">
+        <h2 class="pc-aside-title">Later this week</h2>
+        <div class="pc-forecast">
+          {% if weather and weather.forecast %}
+            {% for day in weather.forecast limit: 3 %}
+              <div class="pc-forecast-day">
+                <div class="pc-forecast-name">{{ day.day | escape }}</div>
+                <div class="pc-forecast-icon">{{ day.symbol | default: '·' | escape }}</div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="pc-forecast-day"><div class="pc-forecast-name">Forecast</div><div class="pc-forecast-icon">—</div></div>
+          {% endif %}
+        </div>
+        {% assign pc_later_count = 0 %}
+        {% for calendar in pc_sources %}
+          {% assign pc_ordered = calendar.events | sort: 'start_at' %}
+          {% for event in pc_ordered %}
+            {% assign pc_event_epoch = event.start_at | date: '%s' | plus: 0 %}
+            {% if pc_event_epoch >= pc_today_epoch and pc_event_epoch < pc_week_end %}
+              {% assign pc_event_date = event.start_at | date: '%Y-%m-%d' %}
+              {% if pc_event_date != pc_today and pc_later_count < 3 %}
+                <div class="pc-week-card">
+                  <div class="pc-week-day">{{ event.start_at | date: '%a' | upcase }}</div>
+                  <div class="pc-week-title">{{ event.summary | default: 'Untitled' | escape }}</div>
+                </div>
+                {% assign pc_later_count = pc_later_count | plus: 1 %}
               {% endif %}
             {% endif %}
           {% endfor %}
         {% endfor %}
-        {% if week_count == 0 %}
-          <div class="pc-empty">Nothing else scheduled</div>
-        {% endif %}
-      </section>
+        {% if pc_later_count == 0 %}<div class="pc-empty">No upcoming events</div>{% endif %}
+      </aside>
+
+      <footer class="pc-footer">
+        <div class="pc-footer-left">
+          <span>▣ {{ pc_today_count }} events today</span>
+          <span class="pc-dot"></span>
+          <span>Last updated: {{ 'now' | date: '%H:%M' }}</span>
+        </div>
+        <div class="pc-footer-right">
+          <span class="pc-status">◉ {% if connection_label %}{{ connection_label | escape }}{% else %}Terminus{% endif %}</span>
+          <span class="pc-dot"></span>
+          <span>{% if battery_percent %}▣ {{ battery_percent | escape }}%{% else %}Battery —{% endif %}</span>
+        </div>
+      </footer>
     </div>
-    <footer class="pc-footer">
-      <span>Paper Calendar</span>
-      <span>Updated {{ 'now' | date: '%d %b %H:%M' }}</span>
-    </footer>
   </div>
 </div>
