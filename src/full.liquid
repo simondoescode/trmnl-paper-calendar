@@ -172,6 +172,10 @@ END MANROPE LICENCE{% endcomment %}
 .pc-footer-left,.pc-footer-right {display:flex;gap:12px;align-items:center;min-width:0}
 .pc-footer .pc-dot {width:3px;height:3px;background:#000;border-radius:50%;display:inline-block}
 .pc-status {overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:145px}
+.pc-more {font-size:12px;font-weight:750;line-height:18px;color:#000}
+.pc-today-more {text-align:right}
+.pc-today-events.pc-has-more .pc-event {height:66px;margin-bottom:8px}
+.pc-today-events.pc-has-more .pc-event.pc-all-day {height:48px}
 </style>
 
 <div class="screen screen--og" style="width:800px;height:480px;overflow:hidden">
@@ -217,7 +221,14 @@ END MANROPE LICENCE{% endcomment %}
             {% endif %}
           </div>
         </header>
-        <div class="pc-today-events">
+        {% assign pc_today_total = 0 %}
+        {% for calendar in pc_sources %}
+          {% for event in calendar.events %}
+            {% assign pc_date = event.start_at | date: '%Y-%m-%d' %}
+            {% if pc_date == pc_today %}{% assign pc_today_total = pc_today_total | plus: 1 %}{% endif %}
+          {% endfor %}
+        {% endfor %}
+        <div class="pc-today-events{% if pc_today_total > 4 %} pc-has-more{% endif %}">
           {% assign pc_today_count = 0 %}
           {% comment %}First pass: all-day tagged events from normalized sources.{% endcomment %}
           {% for calendar in pc_sources %}
@@ -251,6 +262,9 @@ END MANROPE LICENCE{% endcomment %}
             {% endfor %}
           {% endfor %}
           {% if pc_today_count == 0 %}<div class="pc-empty">No events today</div>{% endif %}
+          {% if pc_today_total > pc_today_count %}
+            <div class="pc-more pc-today-more">+{{ pc_today_total | minus: pc_today_count }} more</div>
+          {% endif %}
         </div>
       </main>
 
@@ -284,6 +298,7 @@ END MANROPE LICENCE{% endcomment %}
           {% endif %}
         </div>
         {% assign pc_later_count = 0 %}
+        {% assign pc_later_total = 0 %}
         {% for calendar in pc_sources %}
           {% assign pc_ordered = calendar.events | sort: 'start_at' %}
           {% if calendar.ordered %}{% assign pc_ordered = calendar.events %}{% endif %}
@@ -291,22 +306,28 @@ END MANROPE LICENCE{% endcomment %}
             {% assign pc_event_epoch = event.start_at | date: '%s' | plus: 0 %}
             {% if pc_event_epoch >= pc_today_epoch and pc_event_epoch < pc_week_end %}
               {% assign pc_event_date = event.start_at | date: '%Y-%m-%d' %}
-              {% if pc_event_date != pc_today and pc_later_count < 3 %}
+              {% if pc_event_date != pc_today %}
+                {% assign pc_later_total = pc_later_total | plus: 1 %}
+                {% if pc_later_count < 3 %}
                 <div class="pc-week-card">
                   <div class="pc-week-day">{{ event.start_at | date: '%a' | upcase }}</div>
                   <div class="pc-week-title">{{ event.summary | default: 'Untitled' | escape }}</div>
                 </div>
                 {% assign pc_later_count = pc_later_count | plus: 1 %}
+                {% endif %}
               {% endif %}
             {% endif %}
           {% endfor %}
         {% endfor %}
         {% if pc_later_count == 0 %}<div class="pc-empty">No upcoming events</div>{% endif %}
+        {% if pc_later_total > pc_later_count %}
+          <div class="pc-more pc-later-more">+{{ pc_later_total | minus: pc_later_count }} more</div>
+        {% endif %}
       </aside>
 
       <footer class="pc-footer">
         <div class="pc-footer-left">
-          <span>▣ {{ pc_today_count }} events today</span>
+          <span>▣ {{ pc_today_total }} events today</span>
           <span class="pc-dot"></span>
           <span>Last updated: {{ pc_updated | date: '%H:%M' }}</span>
         </div>

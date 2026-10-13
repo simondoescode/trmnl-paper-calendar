@@ -58,6 +58,32 @@ begin
   driver.save_screenshot("#{out}/mock-repeat.png")
   assert(File.binread("#{out}/mock-preview.png") == File.binread("#{out}/mock-repeat.png"), 'Repeated mock screenshot changed')
 
+  # Count across sources, including all-day events, and reserve real space for overflow.
+  [[4, 3, 0], [7, 6, 0], [7, 6, 5]].each do |today_count, later_count, all_day_count|
+    events = Array.new(today_count) do |i|
+      { summary: "Today event #{i + 1}", start_at: "2026-10-13T#{format('%02d', i + 8)}:00:00+01:00", all_day: i < all_day_count, location: '' }
+    end
+    events += Array.new(later_count) do |i|
+      { summary: "Later event #{i + 1}", start_at: "2026-10-14T#{format('%02d', i + 8)}:00:00+01:00", location: '' }
+    end
+    payload = { source_1: [{ events: events.take(2) }], source_2: [{ events: events.drop(2) }],
+                preview_now: '2026-10-13T00:00:00+01:00', preview_week_end: '2026-10-19T00:00:00+01:00' }
+    response = Net::HTTP.post(URI('http://renderer:4567/render'), payload.to_json, 'Content-Type' => 'application/json')
+    assert(response.code == '200', 'Overflow fixture render failed')
+    driver.execute_script('document.open(); document.write(arguments[0]); document.close();', response.body)
+    wait.until { driver.execute_script('return document.fonts.status === "loaded"') }
+    assert(driver.find_elements(css: '.pc-event').length == 4, 'Today card limit changed')
+    assert(driver.find_elements(css: '.pc-week-card').length == 3, 'Upcoming card limit changed')
+    if today_count == 4
+      assert(driver.find_elements(css: '.pc-more').empty?, 'Overflow shown at exact capacity')
+    else
+      assert(driver.find_element(css: '.pc-today-more').text == '+3 more', 'Today hidden count incorrect')
+      assert(driver.find_element(css: '.pc-later-more').text == '+3 more', 'Upcoming hidden count incorrect')
+      assert(driver.find_element(css: '.pc-footer-left').text.include?('7 events today'), 'Footer must count all Today events')
+      assert(driver.execute_script('const more=document.querySelector(".pc-today-more").getBoundingClientRect(); const cards=[...document.querySelectorAll(".pc-event")]; return more.top >= cards.at(-1).getBoundingClientRect().bottom && more.bottom <= document.querySelector(".pc-footer").getBoundingClientRect().top;'), 'Today overflow overlaps cards or footer')
+    end
+  end
+
   refresh(date: '2026-10-16')
   driver.navigate.refresh
   assert(driver.find_element(css: '.pc-day').text == 'Friday', 'Date change failed')

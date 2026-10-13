@@ -16,6 +16,8 @@ The Liquid palette uses exactly four shades: black (`#000`), dark grey (`#555`) 
 
 Readability refinements retain the canvas and card heights: narrower centred time columns leave more room for titles, secondary text shows location or calendar name, upcoming cards support two title lines and shaded weekday labels, and forecasts include optional daily highs/lows with a separator above the agenda.
 
+Lists display at most four Today cards and three upcoming cards. Additional matching events show `+N more`; the footer counts all Today events. On overflowing days, timed cards compact to 66 px with 8 px gaps to leave room for the indicator above the footer. All-day cards remain 48 px.
+
 ## What is not identical yet
 
 The C++ firmware has true native all-day flags, weather data and battery/Wi-Fi hardware state. Terminus's **native ICS parser does not expose a reliable normalized all-day flag** in its current event hashes; default ICS entries therefore render as timed entries, including midnight all-day dates. The all-day styling activates only if a future normalizer provides `all_day: true`.
