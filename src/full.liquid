@@ -7,9 +7,10 @@
 {% assign pc_today_epoch = pc_today | date: '%s' | plus: 0 %}
 {% assign pc_weekday = 'now' | date: '%w' | plus: 0 %}
 {% assign pc_days_to_sunday = 7 | minus: pc_weekday %}
-{% assign pc_week_end = pc_today_epoch | plus: pc_days_to_sunday | times: 86400 %}
+{% assign pc_week_offset = pc_days_to_sunday | times: 86400 %}
+{% assign pc_week_end = pc_today_epoch | plus: pc_week_offset %}
 {% assign pc_sources = source_1 %}
-{% unless pc_sources %}{% assign pc_sources = empty %}{% endunless %}
+{% unless pc_sources %}{% assign pc_sources = source_2 %}{% endunless %}
 {% if source_2 %}{% assign pc_sources = pc_sources | concat: source_2 %}{% endif %}
 {% if source_3 %}{% assign pc_sources = pc_sources | concat: source_3 %}{% endif %}
 
