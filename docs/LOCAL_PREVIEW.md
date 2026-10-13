@@ -21,7 +21,7 @@ The dashboard maintains one shared in-memory context; tabs share the last refres
 ## Verification and limits
 
 - Docker build/start, offline unit tests and native TRMNL lint run locally.
-- Native Firefox checks canvas, card styling, forecasts, date/DST/continuation/empty states, dashboard iframe and four-shade control.
+- Native Firefox checks canvas, card styling, forecasts, date/DST/continuation/empty states, dashboard iframe and permanent four-shade simulation.
 - Mock renders are compared byte-for-byte with the committed `docs/mock-preview.png` baseline and a repeated capture; CI uploads screenshots. Review artifacts before updating the baseline. Browser/framework upgrades can legitimately change the image.
 - Unit tests block network in mock data mode and check public DNS pinning, private destination rejection, TLS hostname preservation, redirect rejection, response bounds and timeouts.
 - Browser assets are local. Initial builds still download images, packages and official framework assets.

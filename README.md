@@ -16,7 +16,7 @@ Open **http://localhost:8080**. Defaults are two offline fixture calendars, mock
 
 Choose calendar **mock/live**, weather **mock/live/disabled**, a preview date and a scenario. Changing controls refreshes data. **Refresh data** fetches and parses sources again. **Reload preview** renders the latest context and current Liquid without refetching. Edit `src/full.liquid`, then reload without restarting Docker. Fixtures and local calendar configuration are read on refresh. Python code changes require `docker compose restart preview`; dependency or renderer adapter changes require a rebuild.
 
-The iframe is always 800 × 480. **Scale to fit** changes its displayed size; turn it off for full size. **Four-shade simulation** quantizes the view to four greys. Physical panel fidelity has not been validated.
+The iframe is always 800 × 480. **Scale to fit** changes its displayed size; turn it off for full size. **Four-shade simulation is always enabled**, quantizing the view to four greys in both full-size and scaled views. Physical panel fidelity has not been validated.
 
 ## Fixtures and simulated dates
 

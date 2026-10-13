@@ -75,8 +75,7 @@ begin
                        viewport: { width: 1100, height: 850 })
   driver.navigate.to('http://preview:8080/')
   wait.until { driver.find_element(id: 'diagnostics').text.include?('event_count') }
-  driver.find_element(id: 'grey').click
-  assert(driver.execute_script('return document.getElementById("screen").style.filter.includes("four-shades")'), 'Four-shade control failed')
+  assert(driver.execute_script('return getComputedStyle(document.getElementById("screen")).filter.includes("four-shades")'), 'Permanent four-shade simulation missing')
   driver.switch_to.frame(driver.find_element(id: 'screen'))
   wait.until { driver.find_elements(css: '.pc-event').length == 4 }
   driver.switch_to.default_content
